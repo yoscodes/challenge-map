@@ -1,0 +1,134 @@
+"use client";
+import React, { useEffect, useState } from "react";
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import { supabase } from '@/lib/supabase';
+import { isMobile, getMobileStyles } from '@/lib/mobile-utils';
+import MobileMapView from './MobileMapView';
+
+const MapExplore = () => {
+  const [challenges, setChallenges] = useState<any[]>([]);
+  const [progresses, setProgresses] = useState<any[]>([]);
+  const [area, setArea] = useState('');
+  const [category, setCategory] = useState('');
+  const [keyword, setKeyword] = useState('');
+  const [isMobileView, setIsMobileView] = useState(false);
+  const mobileStyles = getMobileStyles();
+
+  // カテゴリ一覧仮
+  const categories = ['旅', '学習', '健康', 'その他'];
+
+  // フィルタリング
+  const filteredChallenges = challenges.filter(c => {
+    const areaMatch = area === '' || (c.location?.address && c.location.address.includes(area));
+    const categoryMatch = category === '' || (c.category && c.category === category);
+    const keywordMatch = keyword === '' || (c.title && c.title.includes(keyword));
+    return areaMatch && categoryMatch && keywordMatch;
+  });
+  const filteredProgresses = progresses.filter(p => {
+    const areaMatch = area === '' || (p.location?.address && p.location.address.includes(area));
+    const keywordMatch = keyword === '' || (p.content && p.content.includes(keyword));
+    return areaMatch && keywordMatch;
+  });
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobileView(isMobile());
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data: ch } = await supabase.from('challenges').select('id, title, category, location, users(username)').not('location', 'is', null);
+      const { data: pr } = await supabase.from('progress_updates').select('id, content, location, users(username)').not('location', 'is', null);
+      setChallenges(ch || []);
+      setProgresses(pr || []);
+    };
+    fetchData();
+  }, []);
+
+  return (
+    <main style={{ 
+      maxWidth: isMobileView ? '100%' : 1200, 
+      margin: '0 auto', 
+      padding: isMobileView ? '16px' : 24,
+      ...(isMobileView && { paddingBottom: '80px' })
+    }}>
+      <h1 style={{ 
+        fontSize: isMobileView ? '24px' : '28px', 
+        fontWeight: 'bold', 
+        marginBottom: '16px' 
+      }}>
+        🗺 地図から探す
+      </h1>
+      
+      {isMobileView ? (
+        <MobileMapView
+          challenges={filteredChallenges}
+          progressUpdates={filteredProgresses}
+          onMarkerClick={(item, type) => {
+            console.log(`${type}:`, item);
+          }}
+        />
+      ) : (
+        <>
+          <div style={{ display: 'flex', gap: 16, marginBottom: 16 }}>
+            <input
+              type="text"
+              value={area}
+              onChange={e => setArea(e.target.value)}
+              placeholder="地域で絞り込み（例：東京、大阪、北海道...）"
+              style={{ padding: 8, borderRadius: 6, border: '1px solid #ccc', minWidth: 180 }}
+            />
+            <select
+              value={category}
+              onChange={e => setCategory(e.target.value)}
+              style={{ padding: 8, borderRadius: 6, border: '1px solid #ccc' }}
+            >
+              <option value="">全カテゴリ</option>
+              {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+            </select>
+            <input
+              type="text"
+              value={keyword}
+              onChange={e => setKeyword(e.target.value)}
+              placeholder="キーワード検索"
+              style={{ padding: 8, borderRadius: 6, border: '1px solid #ccc', minWidth: 180 }}
+            />
+          </div>
+          <div style={{ height: 600, borderRadius: 12, overflow: 'hidden', marginBottom: 24 }}>
+            <MapContainer center={[35.68, 139.76]} zoom={4} style={{ height: '100%', width: '100%' }}>
+              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+              {filteredChallenges.map((c) => c.location && (
+                <Marker key={c.id} position={[c.location.lat, c.location.lng]}>
+                  <Popup>
+                    <b>チャレンジ</b><br />
+                    {c.title}<br />
+                    {c.users?.username && <>by @{c.users.username}<br /></>}
+                    {c.location.address && <span>{c.location.address}</span>}
+                  </Popup>
+                </Marker>
+              ))}
+              {filteredProgresses.map((p) => p.location && (
+                <Marker key={p.id} position={[p.location.lat, p.location.lng]}>
+                  <Popup>
+                    <b>進捗</b><br />
+                    {p.content && p.content.slice(0, 40)}<br />
+                    {p.users?.username && <>by @{p.users.username}<br /></>}
+                    {p.location.address && <span>{p.location.address}</span>}
+                  </Popup>
+                </Marker>
+              ))}
+            </MapContainer>
+          </div>
+        </>
+      )}
+    </main>
+  );
+};
+
+export default MapExplore; 

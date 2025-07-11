@@ -6,6 +6,7 @@ type Progress = {
   date: string;
   content: string;
   imageUrl?: string;
+  images?: string[];
   applauseCount: number;
   commentCount: number;
 };
@@ -21,9 +22,11 @@ const ProgressTimeline = ({ progresses }: ProgressTimelineProps) => (
       {progresses.map((progress) => (
         <ProgressCard
           key={progress.id}
+          id={progress.id}
           date={progress.date}
           content={progress.content}
           imageUrl={progress.imageUrl}
+          images={progress.images}
           applauseCount={progress.applauseCount}
           commentCount={progress.commentCount}
         />

@@ -1,11 +1,190 @@
-import ChallengeDetailLayout from "../../../components/challenge-detail/ChallengeDetailLayout";
+"use client";
 
-type Props = {
-  params: {
-    id: string;
+import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import { challenges, progressUpdates, comments } from '@/lib/database';
+import ChallengeDetailLayout from '@/components/challenge-detail/ChallengeDetailLayout';
+import type { Challenge, ProgressUpdate, Comment } from '@/lib/supabase';
+import dynamic from "next/dynamic";
+import { useRouter } from 'next/navigation';
+
+// SSR無効化でMapViewを動的インポート
+const MapView = dynamic(() => import("@/components/map/MapView"), { ssr: false });
+
+export default function ChallengeDetailPage() {
+  const params = useParams();
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const [challenge, setChallenge] = useState<Challenge | null>(null);
+  const [progresses, setProgresses] = useState<ProgressUpdate[]>([]);
+  const [commentsList, setCommentsList] = useState<Comment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const challengeId = params.id as string;
+
+  const fetchChallengeData = async () => {
+    if (!challengeId) return;
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // チャレンジ詳細を取得
+      const { data: challengeData, error: challengeError } = await challenges.getById(challengeId);
+      
+      if (challengeError) {
+        console.error('チャレンジ取得エラー:', challengeError);
+        setError('チャレンジが見つかりません。');
+        return;
+      }
+
+      setChallenge(challengeData);
+
+      // 進捗更新を取得
+      const { data: progressData, error: progressError } = await progressUpdates.getByChallengeId(challengeId);
+      
+      if (progressError) {
+        console.error('進捗取得エラー:', progressError);
+      } else {
+        setProgresses(progressData || []);
+      }
+
+      // コメントを取得
+      const { data: commentData, error: commentError } = await comments.getByChallengeId(challengeId);
+      
+      if (commentError) {
+        console.error('コメント取得エラー:', commentError);
+      } else {
+        setCommentsList(commentData || []);
+      }
+
+    } catch (err) {
+      console.error('データ取得エラー:', err);
+      setError('データの取得に失敗しました。');
+    } finally {
+      setIsLoading(false);
+    }
   };
-};
 
-export default function ChallengeDetailPage({ params }: Props) {
-  return <ChallengeDetailLayout />;
+  useEffect(() => {
+    fetchChallengeData();
+  }, [challengeId]);
+
+  // コメント追加時のリフレッシュ
+  const handleCommentAdded = () => {
+    fetchChallengeData();
+  };
+
+  // チャレンジ削除ハンドラ
+  const handleDeleteChallenge = async () => {
+    if (!challenge) return;
+    const ok = window.confirm('本当にこのチャレンジを削除しますか？');
+    if (!ok) return;
+    try {
+      await challenges.delete(challenge.id);
+      router.push('/');
+    } catch (err) {
+      alert('削除に失敗しました');
+    }
+  };
+
+  if (loading || isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-600 text-6xl mb-4">❌</div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">エラー</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!challenge) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-gray-600 text-6xl mb-4">🔍</div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">チャレンジが見つかりません</h2>
+        </div>
+      </div>
+    );
+  }
+
+  // データをコンポーネント用の形式に変換
+  const challengeData = {
+    title: challenge.title,
+    author: challenge.users?.username || 'Unknown',
+    category: challenge.category,
+    startDate: new Date(challenge.created_at).toLocaleDateString('ja-JP'),
+    targetDate: challenge.goal_date ? new Date(challenge.goal_date).toLocaleDateString('ja-JP') : '未設定',
+    location: challenge.location?.address || '未設定',
+    description: challenge.description,
+  };
+
+  const progressData = progresses.map(progress => ({
+    id: progress.id,
+    date: new Date(progress.created_at).toLocaleDateString('ja-JP'),
+    content: progress.content,
+    imageUrl: progress.images?.[0] || undefined,
+    applauseCount: 0, // TODO: 拍手機能の実装
+    commentCount: 0, // TODO: コメント数カウント
+  }));
+
+  const commentData = commentsList.map(comment => ({
+    id: comment.id,
+    author: comment.user_id ? comment.users?.username || 'Unknown' : '匿名',
+    content: comment.content,
+    date: new Date(comment.created_at).toLocaleString('ja-JP'),
+    isAnonymous: comment.is_anonymous,
+    canDelete: comment.user_id === user?.id,
+  }));
+
+  return (
+    <div>
+      {/* 投稿者のみ編集・削除ボタン表示 */}
+      {user?.id === challenge.user_id && (
+        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+          <button
+            onClick={() => router.push(`/challenge/${challenge.id}/edit`)}
+            style={{ padding: '6px 16px', borderRadius: 6, background: '#1890ff', color: '#fff', border: 'none', cursor: 'pointer' }}
+          >編集</button>
+          <button
+            onClick={handleDeleteChallenge}
+            style={{ padding: '6px 16px', borderRadius: 6, background: '#fff', color: '#ff4d4f', border: '1px solid #ff4d4f', cursor: 'pointer' }}
+          >削除</button>
+        </div>
+      )}
+      {/* チャレンジの舞台を地図で表示 */}
+      {challenge.location && challenge.location.lat && challenge.location.lng && (
+        <div style={{ marginBottom: 24 }}>
+          <MapView
+            lat={challenge.location.lat}
+            lng={challenge.location.lng}
+            zoom={10}
+            showMarker={true}
+          />
+          <div style={{ marginTop: 8, color: "#666" }}>
+            {challenge.location.address}
+          </div>
+        </div>
+      )}
+      <ChallengeDetailLayout 
+        challenge={{ ...challengeData, challengeId }}
+        progresses={progressData}
+        comments={commentData}
+        onCommentAdded={handleCommentAdded}
+      />
+    </div>
+  );
 } 

@@ -6,6 +6,42 @@ import CommentSection from "./CommentSection";
 import GPTSupportTools from "./GPTSupportTools";
 import SupportButton from "./SupportButton";
 
+interface ChallengeData {
+  title: string;
+  author: string;
+  category: string;
+  startDate: string;
+  targetDate: string;
+  location: string;
+  description: string;
+  challengeId?: string;
+}
+
+interface ProgressData {
+  id: string;
+  date: string;
+  content: string;
+  imageUrl?: string;
+  applauseCount: number;
+  commentCount: number;
+}
+
+interface CommentData {
+  id: string;
+  author: string;
+  content: string;
+  date: string;
+  isAnonymous?: boolean;
+  canDelete?: boolean;
+}
+
+interface ChallengeDetailLayoutProps {
+  challenge: ChallengeData;
+  progresses: ProgressData[];
+  comments: CommentData[];
+  onCommentAdded?: () => void;
+}
+
 // ダミーデータ
 const dummyChallengeData = {
   title: "世界一周、まずは台湾から",
@@ -57,13 +93,17 @@ const dummyComments = [
   }
 ];
 
-const ChallengeDetailLayout = () => (
+const ChallengeDetailLayout = ({ challenge, progresses, comments, onCommentAdded }: ChallengeDetailLayoutProps) => (
   <div style={{ background: '#fafcff', minHeight: '100vh' }}>
     <main style={{ maxWidth: 800, margin: '0 auto', padding: '24px' }}>
-      <ChallengeHeader {...dummyChallengeData} />
-      <ChallengeDescription description={dummyChallengeData.description} />
-      <ProgressTimeline progresses={dummyProgresses} />
-      <CommentSection comments={dummyComments} />
+      <ChallengeHeader {...challenge} />
+      <ChallengeDescription description={challenge.description} />
+      <ProgressTimeline progresses={progresses} />
+      <CommentSection 
+        comments={comments} 
+        challengeId={challenge.challengeId || ''} 
+        onCommentAdded={onCommentAdded}
+      />
       <GPTSupportTools />
       <SupportButton />
     </main>
