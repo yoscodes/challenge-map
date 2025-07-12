@@ -34,10 +34,14 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
         const response = await fetch('/api/search?type=categories');
         if (response.ok) {
           const data = await response.json();
-          setCategories(data.results.categories || []);
+          setCategories(data.results?.categories || []);
+        } else {
+          console.error('カテゴリ取得エラー:', response.status, response.statusText);
+          setCategories([]);
         }
       } catch (error) {
         console.error('カテゴリ取得エラー:', error);
+        setCategories([]);
       } finally {
         setIsLoadingCategories(false);
       }
@@ -54,13 +58,17 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
         const response = await fetch('/api/search?type=locations');
         if (response.ok) {
           const data = await response.json();
-          const locationAddresses = (data.results.locations || [])
+          const locationAddresses = (data.results?.locations || [])
             .map((item: any) => item.location?.address)
             .filter((address: any): address is string => Boolean(address));
           setLocations([...new Set(locationAddresses)] as string[]);
+        } else {
+          console.error('地域取得エラー:', response.status, response.statusText);
+          setLocations([]);
         }
       } catch (error) {
         console.error('地域取得エラー:', error);
+        setLocations([]);
       } finally {
         setIsLoadingLocations(false);
       }

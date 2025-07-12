@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { handleImageError, PLACEHOLDER_TYPES } from "@/lib/placeholder-images";
 
 type ChallengeCardProps = {
   id: string;
@@ -38,6 +39,7 @@ const ChallengeCard = ({
       <img
         src={coverImage}
         alt="チャレンジ画像"
+        onError={(e) => handleImageError(e, PLACEHOLDER_TYPES.CHALLENGE)}
         style={{
           width: 80,
           height: 80,

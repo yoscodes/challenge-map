@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    if (!query && !category && !location) {
+    if (!query && !category && !location && type !== 'categories' && type !== 'locations') {
       return NextResponse.json(
         { error: '検索クエリ、カテゴリ、または地域のいずれかが必要です' },
         { status: 400 }
@@ -102,39 +102,47 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // 地域検索（進捗更新から）
+    // 地域検索（チャレンジと進捗更新から）
     if (type === 'all' || type === 'locations') {
-      let locationsQuery = supabase
+      // チャレンジから地域を取得
+      const { data: challengeLocations, error: challengeLocationsError } = await supabase
+        .from('challenges')
+        .select('location')
+        .eq('is_public', true)
+        .not('location', 'is', null);
+
+      // 進捗更新から地域を取得
+      const { data: progressLocations, error: progressLocationsError } = await supabase
         .from('progress_updates')
         .select('location')
         .not('location', 'is', null);
 
-      if (location) {
-        locationsQuery = locationsQuery.ilike('location->address', `%${location}%`);
+      if (challengeLocationsError) {
+        console.error('チャレンジ地域取得エラー:', challengeLocationsError);
+      }
+      if (progressLocationsError) {
+        console.error('進捗地域取得エラー:', progressLocationsError);
       }
 
-      const { data: locations, error: locationsError } = await locationsQuery
-        .order('created_at', { ascending: false })
-        .range(offset, offset + limit - 1);
+      // 両方のデータを結合して重複を除去
+      const allLocations = [
+        ...(challengeLocations || []),
+        ...(progressLocations || [])
+      ];
 
-      if (locationsError) {
-        console.error('地域検索エラー:', locationsError);
-      } else {
-        // 地域の重複を除去
-        const uniqueLocations = (locations || [])
-          .filter(item => item.location?.address)
-          .reduce((acc: any[], item) => {
-            const exists = acc.find(loc => 
-              loc.location.address === item.location.address
-            );
-            if (!exists) {
-              acc.push(item);
-            }
-            return acc;
-          }, []);
-        
-        results.locations = uniqueLocations;
-      }
+      const uniqueLocations = allLocations
+        .filter(item => item.location?.address)
+        .reduce((acc: any[], item) => {
+          const exists = acc.find(loc => 
+            loc.location.address === item.location.address
+          );
+          if (!exists) {
+            acc.push(item);
+          }
+          return acc;
+        }, []);
+      
+      results.locations = uniqueLocations;
     }
 
     return NextResponse.json({

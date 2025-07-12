@@ -33,104 +33,68 @@ export const isTouchDevice = (): boolean => {
 export const getMobileStyles = () => ({
   // モバイル用のパディング
   mobilePadding: {
-    padding: '16px',
-    '@media (min-width: 768px)': {
-      padding: '24px'
-    }
+    padding: isMobile() ? '16px' : '24px'
   },
   
   // モバイル用のフォントサイズ
   mobileFontSizes: {
     h1: {
-      fontSize: '24px',
-      '@media (min-width: 768px)': {
-        fontSize: '32px'
-      }
+      fontSize: isMobile() ? '24px' : '32px'
     },
     h2: {
-      fontSize: '20px',
-      '@media (min-width: 768px)': {
-        fontSize: '24px'
-      }
+      fontSize: isMobile() ? '20px' : '24px'
     },
     h3: {
-      fontSize: '18px',
-      '@media (min-width: 768px)': {
-        fontSize: '20px'
-      }
+      fontSize: isMobile() ? '18px' : '20px'
     },
     body: {
-      fontSize: '14px',
-      '@media (min-width: 768px)': {
-        fontSize: '16px'
-      }
+      fontSize: isMobile() ? '14px' : '16px'
     },
     small: {
-      fontSize: '12px',
-      '@media (min-width: 768px)': {
-        fontSize: '14px'
-      }
+      fontSize: isMobile() ? '12px' : '14px'
     }
   },
   
   // モバイル用のボタンスタイル
   mobileButton: {
-    padding: '12px 16px',
-    fontSize: '16px', // タッチしやすいサイズ
-    minHeight: '44px', // iOS推奨最小サイズ
+    padding: isMobile() ? '12px 16px' : '8px 16px',
+    fontSize: isMobile() ? '16px' : '14px', // タッチしやすいサイズ
+    minHeight: isMobile() ? '44px' : 'auto', // iOS推奨最小サイズ
     borderRadius: '8px',
     border: 'none',
     cursor: 'pointer',
     fontWeight: 'bold',
-    transition: 'all 0.2s ease',
-    '@media (min-width: 768px)': {
-      padding: '8px 16px',
-      fontSize: '14px',
-      minHeight: 'auto'
-    }
+    transition: 'all 0.2s ease'
   },
   
   // モバイル用のカードスタイル
   mobileCard: {
     borderRadius: '12px',
-    padding: '16px',
-    marginBottom: '16px',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-    '@media (min-width: 768px)': {
-      padding: '20px',
-      marginBottom: '20px'
-    }
+    padding: isMobile() ? '16px' : '20px',
+    marginBottom: isMobile() ? '16px' : '20px',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
   },
   
   // モバイル用の入力フィールド
   mobileInput: {
-    padding: '12px 16px',
-    fontSize: '16px', // iOSでズームを防ぐ
+    padding: isMobile() ? '12px 16px' : '8px 12px',
+    fontSize: isMobile() ? '16px' : '14px', // iOSでズームを防ぐ
     borderRadius: '8px',
     border: '1px solid #ddd',
     width: '100%',
-    boxSizing: 'border-box' as const,
-    '@media (min-width: 768px)': {
-      padding: '8px 12px',
-      fontSize: '14px'
-    }
+    boxSizing: 'border-box' as const
   },
   
   // モバイル用のナビゲーション
   mobileNav: {
-    position: 'fixed' as const,
-    bottom: 0,
-    left: 0,
-    right: 0,
+    position: isMobile() ? 'fixed' as const : 'static' as const,
+    bottom: isMobile() ? 0 : undefined,
+    left: isMobile() ? 0 : undefined,
+    right: isMobile() ? 0 : undefined,
     background: '#fff',
-    borderTop: '1px solid #eee',
-    padding: '8px 0',
-    zIndex: 1000,
-    '@media (min-width: 768px)': {
-      position: 'static' as const,
-      borderTop: 'none',
-      padding: 0
-    }
+    borderTop: isMobile() ? '1px solid #eee' : 'none',
+    padding: isMobile() ? '8px 0' : 0,
+    zIndex: isMobile() ? 1000 : undefined
   },
   
   // モバイル用のモーダル
@@ -145,24 +109,18 @@ export const getMobileStyles = () => ({
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1000,
-    padding: '16px',
-    '@media (min-width: 768px)': {
-      padding: '24px'
-    }
+    padding: isMobile() ? '16px' : '24px'
   },
   
   // モバイル用のモーダルコンテンツ
   mobileModalContent: {
     background: '#fff',
     borderRadius: '12px',
-    padding: '20px',
+    padding: isMobile() ? '20px' : '24px',
     maxWidth: '100%',
     maxHeight: '90vh',
     overflow: 'auto',
-    '@media (min-width: 768px)': {
-      padding: '24px',
-      maxWidth: '500px'
-    }
+    ...(isMobile() ? {} : { maxWidth: '500px' })
   }
 });
 
@@ -224,52 +182,35 @@ export const mobileLayouts = {
   // モバイル用のグリッド
   mobileGrid: {
     display: 'grid',
-    gridTemplateColumns: '1fr',
-    gap: '16px',
-    '@media (min-width: 768px)': {
-      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-      gap: '20px'
-    }
+    gridTemplateColumns: isMobile() ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
+    gap: isMobile() ? '16px' : '20px'
   },
   
   // モバイル用のフレックスボックス
   mobileFlex: {
     display: 'flex',
-    flexDirection: 'column' as const,
-    gap: '16px',
-    '@media (min-width: 768px)': {
-      flexDirection: 'row' as const,
-      gap: '20px'
-    }
+    flexDirection: isMobile() ? 'column' as const : 'row' as const,
+    gap: isMobile() ? '16px' : '20px'
   },
   
   // モバイル用のサイドバー
   mobileSidebar: {
-    position: 'fixed' as const,
-    top: 0,
-    left: '-100%',
-    width: '80%',
-    maxWidth: '300px',
-    height: '100vh',
+    position: isMobile() ? 'fixed' as const : 'static' as const,
+    top: isMobile() ? 0 : undefined,
+    left: isMobile() ? '-100%' : undefined,
+    width: isMobile() ? '80%' : 'auto',
+    maxWidth: isMobile() ? '300px' : undefined,
+    height: isMobile() ? '100vh' : 'auto',
     background: '#fff',
-    zIndex: 1001,
-    transition: 'left 0.3s ease',
-    boxShadow: '2px 0 8px rgba(0, 0, 0, 0.1)',
-    '@media (min-width: 768px)': {
-      position: 'static' as const,
-      width: 'auto',
-      height: 'auto',
-      boxShadow: 'none'
-    }
+    zIndex: isMobile() ? 1001 : undefined,
+    transition: isMobile() ? 'left 0.3s ease' : undefined,
+    boxShadow: isMobile() ? '2px 0 8px rgba(0, 0, 0, 0.1)' : 'none'
   },
   
   // モバイル用のメインコンテンツ
   mobileMain: {
     flex: 1,
-    padding: '16px',
-    '@media (min-width: 768px)': {
-      padding: '24px'
-    }
+    padding: isMobile() ? '16px' : '24px'
   }
 };
 
@@ -277,10 +218,7 @@ export const mobileLayouts = {
 export const mobileMapControls = {
   // モバイル用の地図コントロール
   mobileMapContainer: {
-    height: '60vh',
-    '@media (min-width: 768px)': {
-      height: '70vh'
-    }
+    height: isMobile() ? '60vh' : '70vh'
   },
   
   // モバイル用の地図ボタン
@@ -321,61 +259,43 @@ export const mobileFormStyles = {
   mobileForm: {
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: '16px',
-    padding: '16px',
-    '@media (min-width: 768px)': {
-      padding: '24px',
-      gap: '20px'
-    }
+    gap: isMobile() ? '16px' : '20px',
+    padding: isMobile() ? '16px' : '24px'
   },
   
   // モバイル用のフォームグループ
   mobileFormGroup: {
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: '8px',
-    '@media (min-width: 768px)': {
-      gap: '12px'
-    }
+    gap: isMobile() ? '8px' : '12px'
   },
   
   // モバイル用のラベル
   mobileLabel: {
-    fontSize: '14px',
+    fontSize: isMobile() ? '14px' : '16px',
     fontWeight: 'bold',
-    color: '#333',
-    '@media (min-width: 768px)': {
-      fontSize: '16px'
-    }
+    color: '#333'
   },
   
   // モバイル用のテキストエリア
   mobileTextarea: {
-    padding: '12px 16px',
-    fontSize: '16px',
+    padding: isMobile() ? '12px 16px' : '8px 12px',
+    fontSize: isMobile() ? '16px' : '14px',
     borderRadius: '8px',
     border: '1px solid #ddd',
-    minHeight: '100px',
+    minHeight: isMobile() ? '100px' : '80px',
     resize: 'vertical' as const,
-    fontFamily: 'inherit',
-    '@media (min-width: 768px)': {
-      padding: '8px 12px',
-      fontSize: '14px',
-      minHeight: '80px'
-    }
+    fontFamily: 'inherit'
   },
   
   // モバイル用のファイルアップロード
   mobileFileUpload: {
     border: '2px dashed #ddd',
     borderRadius: '8px',
-    padding: '20px',
+    padding: isMobile() ? '20px' : '16px',
     textAlign: 'center' as const,
     cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    '@media (min-width: 768px)': {
-      padding: '16px'
-    }
+    transition: 'all 0.2s ease'
   }
 };
 
@@ -384,21 +304,15 @@ export const mobileNotifications = {
   // モバイル用のトースト
   mobileToast: {
     position: 'fixed' as const,
-    bottom: '80px', // モバイルナビゲーションの上
-    left: '16px',
-    right: '16px',
+    bottom: isMobile() ? '80px' : '20px', // モバイルナビゲーションの上
+    left: isMobile() ? '16px' : 'auto',
+    right: isMobile() ? '16px' : '20px',
     background: '#333',
     color: '#fff',
     padding: '12px 16px',
     borderRadius: '8px',
     fontSize: '14px',
     zIndex: 1002,
-    '@media (min-width: 768px)': {
-      bottom: '20px',
-      left: 'auto',
-      right: '20px',
-      width: 'auto',
-      minWidth: '300px'
-    }
+    ...(isMobile() ? {} : { width: 'auto', minWidth: '300px' })
   }
 }; 

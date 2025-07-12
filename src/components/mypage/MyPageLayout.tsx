@@ -7,6 +7,7 @@ import TabSwitcher from "./TabSwitcher";
 import ChallengeCardList from "./ChallengeCardList";
 import SupporterList from "./SupporterList";
 import EditLinks from "./EditLinks";
+import { getPlaceholderImage, PLACEHOLDER_TYPES } from "@/lib/placeholder-images";
 
 type Tab = "active" | "completed" | "supporters";
 
@@ -16,7 +17,7 @@ const MyPageLayout = () => {
   // ダミーデータ
   const userData = {
     username: "@ai_traveler",
-    profileImage: "https://via.placeholder.com/120x120/87CEEB/FFFFFF?text=👤",
+    profileImage: getPlaceholderImage(PLACEHOLDER_TYPES.USER),
     bio: "世界一周旅行を目指す冒険者です。異文化体験を通じて自分自身の視野を広げたいと思っています。",
     location: "東京 → 世界各地",
     website: "https://example.com",
@@ -39,7 +40,7 @@ const MyPageLayout = () => {
       progressDay: 17,
       applauseCount: 32,
       supporterCount: 5,
-      coverImage: "https://via.placeholder.com/80x80/87CEEB/FFFFFF?text=✈️"
+      coverImage: getPlaceholderImage(PLACEHOLDER_TYPES.CHALLENGE)
     },
     {
       id: "2",
@@ -47,7 +48,7 @@ const MyPageLayout = () => {
       status: "active" as const,
       progressDay: 10,
       applauseCount: 12,
-      coverImage: "https://via.placeholder.com/80x80/52c41a/FFFFFF?text=🌅"
+      coverImage: getPlaceholderImage(PLACEHOLDER_TYPES.CHALLENGE)
     },
     {
       id: "3",
@@ -65,14 +66,14 @@ const MyPageLayout = () => {
       amount: 500,
       type: "monthly" as const,
       comment: "がんばって！",
-      profileImage: "https://via.placeholder.com/60x60/ff6b6b/FFFFFF?text=K"
+      profileImage: getPlaceholderImage(PLACEHOLDER_TYPES.AVATAR)
     },
     {
       id: "2",
       username: "megu123",
       amount: 1000,
       type: "oneTime" as const,
-      profileImage: "https://via.placeholder.com/60x60/52c41a/FFFFFF?text=M"
+      profileImage: getPlaceholderImage(PLACEHOLDER_TYPES.AVATAR)
     }
   ];
 

@@ -43,10 +43,39 @@ const MapExplore = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: ch } = await supabase.from('challenges').select('id, title, category, location, users(username)').not('location', 'is', null);
-      const { data: pr } = await supabase.from('progress_updates').select('id, content, location, users(username)').not('location', 'is', null);
-      setChallenges(ch || []);
-      setProgresses(pr || []);
+      try {
+        const { data: ch, error: chError } = await supabase.from('challenges').select('id, title, description, category, location, created_at, users(username)').not('location', 'is', null);
+        const { data: pr, error: prError } = await supabase.from('progress_updates').select('id, content, location, created_at, challenges(title), users(username)').not('location', 'is', null);
+        
+        if (chError) {
+          console.error('チャレンジデータ取得エラー:', chError);
+        }
+        if (prError) {
+          console.error('進捗データ取得エラー:', prError);
+        }
+        
+        // データ構造を整形
+        const formattedChallenges = (ch || []).map(challenge => ({
+          ...challenge,
+          user: challenge.users,
+          description: challenge.description || '',
+          created_at: challenge.created_at || new Date().toISOString()
+        }));
+        
+        const formattedProgresses = (pr || []).map(progress => ({
+          ...progress,
+          user: progress.users,
+          challenge: { title: progress.challenges?.title || 'Unknown Challenge' },
+          created_at: progress.created_at || new Date().toISOString()
+        }));
+        
+        setChallenges(formattedChallenges);
+        setProgresses(formattedProgresses);
+      } catch (error) {
+        console.error('データ取得エラー:', error);
+        setChallenges([]);
+        setProgresses([]);
+      }
     };
     fetchData();
   }, []);

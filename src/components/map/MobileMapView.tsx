@@ -304,7 +304,6 @@ const MobileMapView: React.FC<MobileMapViewProps> = ({
         ref={mapRef}
         zoomControl={false} // カスタムコントロールを使用
         doubleClickZoom={false} // モバイルで誤操作を防ぐ
-        tap={true} // タッチ操作を有効化
       >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -333,18 +332,14 @@ const MobileMapView: React.FC<MobileMapViewProps> = ({
                 }}>
                   {challenge.title}
                 </h3>
-                <p style={{
-                  margin: '0 0 8px 0',
-                  fontSize: '14px',
-                  color: '#666'
-                }}>
-                  {challenge.description.substring(0, 100)}...
+                <p style={{ color: '#666' }}>
+                  {typeof challenge.description === 'string' ? challenge.description.substring(0, 100) : ''}...
                 </p>
                 <div style={{
                   fontSize: '12px',
                   color: '#999'
                 }}>
-                  by {challenge.user.username}
+                  by {challenge.user?.username || 'Unknown User'}
                 </div>
               </div>
             </Popup>
@@ -371,20 +366,20 @@ const MobileMapView: React.FC<MobileMapViewProps> = ({
                   fontSize: '16px',
                   fontWeight: 'bold'
                 }}>
-                  {progress.challenge.title}
+                  {progress.challenge?.title || 'Unknown Challenge'}
                 </h3>
                 <p style={{
                   margin: '0 0 8px 0',
                   fontSize: '14px',
                   color: '#666'
                 }}>
-                  {progress.content.substring(0, 100)}...
+                  {progress.content?.substring(0, 100) || ''}...
                 </p>
                 <div style={{
                   fontSize: '12px',
                   color: '#999'
                 }}>
-                  by {progress.user.username}
+                  by {progress.user?.username || 'Unknown User'}
                 </div>
               </div>
             </Popup>
@@ -423,7 +418,7 @@ const MobileMapView: React.FC<MobileMapViewProps> = ({
             }}>
               {selectedType === 'challenge' 
                 ? (selectedItem as Challenge).title
-                : (selectedItem as ProgressUpdate).challenge.title
+                : (selectedItem as ProgressUpdate).challenge?.title || 'Unknown Challenge'
               }
             </h3>
             <button
@@ -458,7 +453,7 @@ const MobileMapView: React.FC<MobileMapViewProps> = ({
             color: '#666',
             marginBottom: '16px'
           }}>
-            📍 {selectedItem.location.address}
+            📍 {selectedItem.location?.address || 'Unknown Location'}
           </div>
           
           <div style={{
@@ -468,8 +463,8 @@ const MobileMapView: React.FC<MobileMapViewProps> = ({
             fontSize: '12px',
             color: '#999'
           }}>
-            <span>by {selectedItem.user.username}</span>
-            <span>{new Date(selectedItem.created_at).toLocaleDateString('ja-JP')}</span>
+            <span>by {selectedItem.user?.username || 'Unknown User'}</span>
+            <span>{new Date(selectedItem.created_at || new Date()).toLocaleDateString('ja-JP')}</span>
           </div>
         </div>
       )}
