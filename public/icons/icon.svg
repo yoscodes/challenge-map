@@ -1,1 +1,30 @@
- 
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景円 -->
+  <circle cx="256" cy="256" r="256" fill="#3b82f6"/>
+  
+  <!-- 地図の輪郭 -->
+  <path d="M128 160 L384 160 L384 352 L128 352 Z" fill="white" stroke="#1e40af" stroke-width="8"/>
+  
+  <!-- 地図のグリッド線 -->
+  <path d="M128 224 L384 224" stroke="#1e40af" stroke-width="4" opacity="0.6"/>
+  <path d="M128 288 L384 288" stroke="#1e40af" stroke-width="4" opacity="0.6"/>
+  <path d="M224 160 L224 352" stroke="#1e40af" stroke-width="4" opacity="0.6"/>
+  <path d="M320 160 L320 352" stroke="#1e40af" stroke-width="4" opacity="0.6"/>
+  
+  <!-- チャレンジマーカー1 -->
+  <circle cx="176" cy="192" r="12" fill="#ef4444"/>
+  <circle cx="176" cy="192" r="8" fill="white"/>
+  
+  <!-- チャレンジマーカー2 -->
+  <circle cx="288" cy="256" r="12" fill="#10b981"/>
+  <circle cx="288" cy="256" r="8" fill="white"/>
+  
+  <!-- チャレンジマーカー3 -->
+  <circle cx="336" cy="320" r="12" fill="#f59e0b"/>
+  <circle cx="336" cy="320" r="8" fill="white"/>
+  
+  <!-- 現在地マーカー -->
+  <circle cx="240" cy="320" r="16" fill="#6366f1"/>
+  <circle cx="240" cy="320" r="12" fill="white"/>
+  <circle cx="240" cy="320" r="6" fill="#6366f1"/>
+</svg> 
