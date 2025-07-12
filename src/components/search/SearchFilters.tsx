@@ -59,7 +59,14 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
         if (response.ok) {
           const data = await response.json();
           const locationAddresses = (data.results?.locations || [])
-            .map((item: any) => item.location?.address)
+            .map((item: any) => {
+              if (typeof item.location === 'string') {
+                return item.location;
+              } else if (item.location && typeof item.location === 'object') {
+                return item.location.address;
+              }
+              return null;
+            })
             .filter((address: any): address is string => Boolean(address));
           setLocations([...new Set(locationAddresses)] as string[]);
         } else {
@@ -259,8 +266,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
             >
               <option value="">すべての地域</option>
               {locations.map((location) => (
-                <option key={location} value={location}>
-                  {location}
+                <option key={typeof location === 'string' ? location : JSON.stringify(location)} value={typeof location === 'string' ? location : ''}>
+                  {typeof location === 'string' ? location : 'Invalid Location'}
                 </option>
               ))}
             </select>

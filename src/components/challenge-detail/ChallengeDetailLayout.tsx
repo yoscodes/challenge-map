@@ -105,7 +105,7 @@ const ChallengeDetailLayout = ({ challenge, progresses, comments, onCommentAdded
         onCommentAdded={onCommentAdded}
       />
       <GPTSupportTools />
-      <SupportButton />
+      <SupportButton author={challenge.author} />
     </main>
   </div>
 );

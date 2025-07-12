@@ -5,11 +5,11 @@ const PLACEHOLDER_BASE = '/placeholder';
 
 // プレースホルダー画像の種類
 export const PLACEHOLDER_TYPES = {
-  USER: 'user',
-  CHALLENGE: 'challenge',
-  AVATAR: 'avatar',
-  AVATAR_SMALL: 'avatar-small',
-  IMAGE: 'image'
+  USER: 'USER',
+  CHALLENGE: 'CHALLENGE',
+  AVATAR: 'AVATAR',
+  AVATAR_SMALL: 'AVATAR_SMALL',
+  IMAGE: 'IMAGE'
 } as const;
 
 // プレースホルダー画像を生成する関数
@@ -28,7 +28,7 @@ export const getPlaceholderImage = (
     [PLACEHOLDER_TYPES.IMAGE]: '/placeholder-image.svg'
   };
 
-  return placeholderMap[PLACEHOLDER_TYPES[type]] || placeholderMap[PLACEHOLDER_TYPES.IMAGE];
+  return placeholderMap[type] || placeholderMap[PLACEHOLDER_TYPES.IMAGE];
 };
 
 // エラー時のフォールバック画像

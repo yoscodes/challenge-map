@@ -6,9 +6,43 @@ import { supabase } from '@/lib/supabase';
 import { isMobile, getMobileStyles } from '@/lib/mobile-utils';
 import MobileMapView from './MobileMapView';
 
+// 型定義
+interface ChallengeData {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  location: {
+    lat: number;
+    lng: number;
+    address: string;
+  };
+  user: {
+    username: string;
+  };
+  created_at: string;
+}
+
+interface ProgressData {
+  id: string;
+  content: string;
+  location: {
+    lat: number;
+    lng: number;
+    address: string;
+  };
+  challenge: {
+    title: string;
+  };
+  user: {
+    username: string;
+  };
+  created_at: string;
+}
+
 const MapExplore = () => {
-  const [challenges, setChallenges] = useState<any[]>([]);
-  const [progresses, setProgresses] = useState<any[]>([]);
+  const [challenges, setChallenges] = useState<ChallengeData[]>([]);
+  const [progresses, setProgresses] = useState<ProgressData[]>([]);
   const [area, setArea] = useState('');
   const [category, setCategory] = useState('');
   const [keyword, setKeyword] = useState('');
@@ -56,18 +90,29 @@ const MapExplore = () => {
         
         // データ構造を整形
         const formattedChallenges = (ch || []).map(challenge => ({
-          ...challenge,
-          user: challenge.users,
+          id: challenge.id,
+          title: challenge.title || 'Unknown Challenge',
           description: challenge.description || '',
+          category: challenge.category,
+          location: challenge.location,
+          user: {
+            username: (challenge.users as any)?.username || 'Unknown User'
+          },
           created_at: challenge.created_at || new Date().toISOString()
-        }));
+        })) as ChallengeData[];
         
         const formattedProgresses = (pr || []).map(progress => ({
-          ...progress,
-          user: progress.users,
-          challenge: { title: progress.challenges?.title || 'Unknown Challenge' },
+          id: progress.id,
+          content: progress.content || '',
+          location: progress.location,
+          challenge: { 
+            title: (progress.challenges as any)?.title || 'Unknown Challenge' 
+          },
+          user: {
+            username: (progress.users as any)?.username || 'Unknown User'
+          },
           created_at: progress.created_at || new Date().toISOString()
-        }));
+        })) as ProgressData[];
         
         setChallenges(formattedChallenges);
         setProgresses(formattedProgresses);
@@ -137,7 +182,7 @@ const MapExplore = () => {
                   <Popup>
                     <b>チャレンジ</b><br />
                     {c.title}<br />
-                    {c.users?.username && <>by @{c.users.username}<br /></>}
+                    {c.user?.username && <>by @{c.user.username}<br /></>}
                     {c.location.address && <span>{c.location.address}</span>}
                   </Popup>
                 </Marker>
@@ -147,7 +192,7 @@ const MapExplore = () => {
                   <Popup>
                     <b>進捗</b><br />
                     {p.content && p.content.slice(0, 40)}<br />
-                    {p.users?.username && <>by @{p.users.username}<br /></>}
+                    {p.user?.username && <>by @{p.user.username}<br /></>}
                     {p.location.address && <span>{p.location.address}</span>}
                   </Popup>
                 </Marker>

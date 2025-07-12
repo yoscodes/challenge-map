@@ -180,8 +180,12 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                     }}>
                       <span>👤 {challenge.users?.username}</span>
                       <span>📂 {challenge.category}</span>
-                      {challenge.location?.address && (
-                        <span>📍 {challenge.location.address}</span>
+                      {challenge.location && (
+                        <span>📍 {
+                          typeof challenge.location === 'string' 
+                            ? challenge.location 
+                            : challenge.location.address
+                        }</span>
                       )}
                     </div>
                   </div>
@@ -366,7 +370,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             {results.locations.map((location: any, index: number) => (
               <Link
                 key={index}
-                href={`/search?type=challenges&location=${encodeURIComponent(location.location.address)}`}
+                href={`/search?type=challenges&location=${encodeURIComponent(location.address)}`}
                 style={{
                   display: 'block',
                   padding: '16px',
@@ -391,7 +395,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                     fontSize: '14px',
                     color: '#333'
                   }}>
-                    {location.location.address}
+                    {location.address}
                   </span>
                 </div>
               </Link>

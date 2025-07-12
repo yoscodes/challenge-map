@@ -453,7 +453,13 @@ const MobileMapView: React.FC<MobileMapViewProps> = ({
             color: '#666',
             marginBottom: '16px'
           }}>
-            📍 {selectedItem.location?.address || 'Unknown Location'}
+            📍 {
+              selectedItem.location 
+                ? typeof selectedItem.location === 'string'
+                  ? selectedItem.location
+                  : selectedItem.location.address
+                : 'Unknown Location'
+            }
           </div>
           
           <div style={{

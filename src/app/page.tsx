@@ -44,7 +44,14 @@ export default function HomePage() {
   return (
     <div style={{ background: '#fafcff', minHeight: '100vh' }}>
       <Header />
-      <main style={{ maxWidth: 1000, margin: '0 auto', padding: '24px 0' }}>
+      <main
+        style={{
+          maxWidth: '1000px',
+          margin: '0 auto',
+          padding: '24px 16px',
+          width: '100%',
+        }}
+      >
         <HeroMessage />
         <SearchBar />
         <MainLayout />

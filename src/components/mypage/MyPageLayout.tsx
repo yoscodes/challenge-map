@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import ProfileHeader from "./ProfileHeader";
 import UserStats from "./UserStats";
 import TabSwitcher from "./TabSwitcher";
@@ -13,6 +14,7 @@ type Tab = "active" | "completed" | "supporters";
 
 const MyPageLayout = () => {
   const [activeTab, setActiveTab] = useState<Tab>("active");
+  const router = useRouter();
 
   // ダミーデータ
   const userData = {
@@ -93,6 +95,25 @@ const MyPageLayout = () => {
   return (
     <div style={{ background: '#fafcff', minHeight: '100vh' }}>
       <main style={{ maxWidth: 1000, margin: '0 auto', padding: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
+          <button
+            style={{
+              marginRight: 16,
+              padding: '8px 12px',
+              border: '1px solid #ddd',
+              borderRadius: 4,
+              background: '#fff',
+              cursor: 'pointer',
+              fontSize: 18
+            }}
+            onClick={() => router.back()}
+          >
+            ← 戻る
+          </button>
+          <h1 style={{ fontSize: 24, fontWeight: 'bold', margin: 0 }}>
+            マイページ
+          </h1>
+        </div>
         <ProfileHeader {...userData} />
         <UserStats {...statsData} />
         <TabSwitcher activeTab={activeTab} onTabChange={setActiveTab} />

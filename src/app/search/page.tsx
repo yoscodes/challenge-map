@@ -6,6 +6,7 @@ import SearchBar from '@/components/search/SearchBar';
 import SearchFilters from '@/components/search/SearchFilters';
 import SearchResults from '@/components/search/SearchResults';
 import SearchLayout from '@/components/search/SearchLayout';
+import MobileNavigation from '@/components/common/MobileNavigation';
 
 export default function SearchPage() {
   const searchParams = useSearchParams();
@@ -118,32 +119,33 @@ export default function SearchPage() {
   };
 
   return (
-    <SearchLayout>
-      <SearchBar 
-        value={searchQuery}
-        onSearch={handleSearch}
-        placeholder="チャレンジ、ユーザー、地域を検索..."
-      />
-      
-      <SearchFilters
-        searchType={searchType}
-        selectedCategory={selectedCategory}
-        selectedLocation={selectedLocation}
-        onTypeChange={handleTypeChange}
-        onCategoryChange={handleCategoryChange}
-        onLocationChange={handleLocationChange}
-        onClearFilters={clearFilters}
-      />
-      
-      <SearchResults
-        results={results}
-        searchType={searchType}
-        isLoading={isLoading}
-        error={error}
-        searchQuery={searchQuery}
-        selectedCategory={selectedCategory}
-        selectedLocation={selectedLocation}
-      />
-    </SearchLayout>
+    <>
+      <SearchLayout>
+        <SearchBar 
+          value={searchQuery}
+          onSearch={handleSearch}
+          placeholder="チャレンジ、ユーザー、地域を検索..."
+        />
+        <SearchFilters
+          searchType={searchType}
+          selectedCategory={selectedCategory}
+          selectedLocation={selectedLocation}
+          onTypeChange={handleTypeChange}
+          onCategoryChange={handleCategoryChange}
+          onLocationChange={handleLocationChange}
+          onClearFilters={clearFilters}
+        />
+        <SearchResults
+          results={results}
+          searchType={searchType}
+          isLoading={isLoading}
+          error={error}
+          searchQuery={searchQuery}
+          selectedCategory={selectedCategory}
+          selectedLocation={selectedLocation}
+        />
+      </SearchLayout>
+      <MobileNavigation />
+    </>
   );
 } 

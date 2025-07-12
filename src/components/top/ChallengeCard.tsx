@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import ApplauseButton from "@/components/common/ApplauseButton";
 import { getApplauseCount, isApplaudedByUser } from "@/lib/applause";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,7 +12,6 @@ type ChallengeCardProps = {
   applause: number;
   progress: string;
 };
-
 
 const ChallengeCard = ({ id, title, user, applause, progress }: ChallengeCardProps) => {
   const { user: authUser } = useAuth();
@@ -36,32 +36,34 @@ const ChallengeCard = ({ id, title, user, applause, progress }: ChallengeCardPro
   }, [id, authUser]);
 
   return (
-    <div style={{ border: '1px solid #eee', borderRadius: 8, padding: 16, marginBottom: 12, background: '#fff' }}>
-      <div style={{ fontWeight: 'bold', fontSize: 18, display: 'flex', alignItems: 'center', gap: 12 }}>
-        ■ {title}
-        <span style={{ color: '#888', fontSize: 14 }}>by {user}</span>
-        <ApplauseButton
-          targetType="challenge"
-          targetId={id}
-          initialCount={applauseCnt}
-          initialApplauded={applauded}
-          onChange={(a, c) => { setApplauded(a); setApplauseCnt(c); }}
-        />
-        <button
-          onClick={() => setReportOpen(true)}
-          style={{ marginLeft: 'auto', background: '#ff7875', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 12px', fontSize: 13, cursor: 'pointer' }}
-        >
-          通報
-        </button>
-        <ReportModal
-          open={reportOpen}
-          onClose={() => setReportOpen(false)}
-          targetType="challenge"
-          targetId={id}
-        />
+    <Link href={`/challenge/${id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+      <div style={{ border: '1px solid #eee', borderRadius: 8, padding: 16, marginBottom: 12, background: '#fff', cursor: 'pointer', transition: 'box-shadow 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.03)' }}>
+        <div style={{ fontWeight: 'bold', fontSize: 18, display: 'flex', alignItems: 'center', gap: 12 }}>
+          ■ {title}
+          <span style={{ color: '#888', fontSize: 14 }}>by {user}</span>
+          <ApplauseButton
+            targetType="challenge"
+            targetId={id}
+            initialCount={applauseCnt}
+            initialApplauded={applauded}
+            onChange={(a, c) => { setApplauded(a); setApplauseCnt(c); }}
+          />
+          <button
+            onClick={e => { e.preventDefault(); setReportOpen(true); }}
+            style={{ marginLeft: 'auto', background: '#ff7875', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 12px', fontSize: 13, cursor: 'pointer' }}
+          >
+            通報
+          </button>
+          <ReportModal
+            open={reportOpen}
+            onClose={() => setReportOpen(false)}
+            targetType="challenge"
+            targetId={id}
+          />
+        </div>
+        <div style={{ marginTop: 8, color: '#555' }}>{progress}</div>
       </div>
-      <div style={{ marginTop: 8, color: '#555' }}>{progress}</div>
-    </div>
+    </Link>
   );
 };
 

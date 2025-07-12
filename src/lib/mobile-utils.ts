@@ -277,6 +277,47 @@ export const mobileFormStyles = {
     color: '#333'
   },
   
+  // モバイル用の入力フィールド
+  mobileInput: {
+    padding: isMobile() ? '12px 16px' : '8px 12px',
+    fontSize: isMobile() ? '16px' : '14px',
+    borderRadius: '8px',
+    border: '1px solid #ddd',
+    width: '100%',
+    boxSizing: 'border-box' as const
+  },
+  
+  // モバイル用のボタン
+  mobileButton: {
+    padding: isMobile() ? '12px 16px' : '8px 16px',
+    fontSize: isMobile() ? '16px' : '14px',
+    minHeight: isMobile() ? '44px' : 'auto',
+    borderRadius: '8px',
+    border: 'none',
+    cursor: 'pointer',
+    fontWeight: 'bold',
+    transition: 'all 0.2s ease'
+  },
+  
+  // モバイル用のフォントサイズ
+  mobileFontSizes: {
+    h1: {
+      fontSize: isMobile() ? '24px' : '32px'
+    },
+    h2: {
+      fontSize: isMobile() ? '20px' : '24px'
+    },
+    h3: {
+      fontSize: isMobile() ? '18px' : '20px'
+    },
+    body: {
+      fontSize: isMobile() ? '14px' : '16px'
+    },
+    small: {
+      fontSize: isMobile() ? '12px' : '14px'
+    }
+  },
+  
   // モバイル用のテキストエリア
   mobileTextarea: {
     padding: isMobile() ? '12px 16px' : '8px 12px',
