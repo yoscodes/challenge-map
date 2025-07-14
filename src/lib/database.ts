@@ -137,16 +137,30 @@ export const comments = {
 
   // 進捗のコメント取得
   async getByProgressId(progressId: string) {
-    const { data, error } = await supabase
-      .from('progress_comments')
-      .select(`
-        *,
-        users(username, avatar_url)
-      `)
-      .eq('progress_id', progressId)
-      .order('created_at', { ascending: true });
-    
-    return { data, error };
+    try {
+      const { data, error } = await supabase
+        .from('progress_comments')
+        .select(`
+          *,
+          users(username, avatar_url)
+        `)
+        .eq('progress_id', progressId)
+        .order('created_at', { ascending: true });
+      
+      if (error) {
+        console.error('進捗コメント取得エラー:', error);
+        // テーブルが存在しない場合やリレーションシップエラーの場合は空配列を返す
+        if (error.code === '42P01' || error.code === 'PGRST200') {
+          console.log('progress_commentsテーブルが存在しないか、リレーションシップが設定されていません。空配列を返します。');
+          return { data: [], error: null };
+        }
+      }
+      
+      return { data: data || [], error };
+    } catch (err) {
+      console.error('進捗コメント取得エラー:', err);
+      return { data: [], error: err };
+    }
   },
 
   // コメント作成
@@ -192,13 +206,49 @@ export const comments = {
     user_id: string;
     content: string;
   }) {
-    const { data, error } = await supabase
-      .from('progress_comments')
-      .insert([comment])
-      .select()
-      .single();
-    
-    return { data, error };
+    try {
+      const { data, error } = await supabase
+        .from('progress_comments')
+        .insert([comment])
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('進捗コメント作成エラー:', error);
+        // テーブルが存在しない場合やリレーションシップエラーの場合はエラーを返す
+        if (error.code === '42P01' || error.code === 'PGRST200') {
+          return { data: null, error: new Error('進捗コメント機能は現在利用できません') };
+        }
+      }
+      
+      return { data, error };
+    } catch (err) {
+      console.error('進捗コメント作成エラー:', err);
+      return { data: null, error: err };
+    }
+  },
+
+  // 進捗コメント削除
+  async deleteProgressComment(id: string) {
+    try {
+      const { error } = await supabase
+        .from('progress_comments')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        console.error('進捗コメント削除エラー:', error);
+        // テーブルが存在しない場合やリレーションシップエラーの場合はエラーを返す
+        if (error.code === '42P01' || error.code === 'PGRST200') {
+          return { error: new Error('進捗コメント機能は現在利用できません') };
+        }
+      }
+      
+      return { error };
+    } catch (err) {
+      console.error('進捗コメント削除エラー:', err);
+      return { error: err };
+    }
   },
 
   // コメント削除
@@ -446,6 +496,22 @@ export const users = {
       .order('created_at', { ascending: false })
       .limit(limit);
     
+    return { data, error };
+  },
+}; 
+
+// サポーター関連
+export const supporters = {
+  // 指定ユーザーを支援しているサポーター一覧取得
+  async getByUserId(userId: string) {
+    const { data, error } = await supabase
+      .from('supporters')
+      .select(`
+        *,
+        users:supporter_id(username, avatar_url)
+      `)
+      .eq('supported_user_id', userId)
+      .order('created_at', { ascending: false });
     return { data, error };
   },
 }; 

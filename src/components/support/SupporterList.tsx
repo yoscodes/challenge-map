@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { getPlaceholderImage, PLACEHOLDER_TYPES } from "@/lib/placeholder-images";
 
 type Supporter = {
   id: string;
@@ -45,7 +46,7 @@ const SupporterList = ({ supporters }: SupporterListProps) => {
         }}>
           {/* プロフィール画像 */}
           <img
-            src={supporter.profileImage || "https://via.placeholder.com/60x60/87CEEB/FFFFFF?text=👤"}
+            src={supporter.profileImage || getPlaceholderImage(PLACEHOLDER_TYPES.AVATAR_SMALL)}
             alt={`${supporter.username}のプロフィール`}
             style={{
               width: 60,
@@ -54,6 +55,7 @@ const SupporterList = ({ supporters }: SupporterListProps) => {
               objectFit: 'cover',
               flexShrink: 0
             }}
+            onError={(e) => { e.currentTarget.src = getPlaceholderImage(PLACEHOLDER_TYPES.AVATAR_SMALL); }}
           />
           
           {/* サポーター情報 */}

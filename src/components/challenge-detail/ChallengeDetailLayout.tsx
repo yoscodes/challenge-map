@@ -1,4 +1,5 @@
 import React from "react";
+import { getPlaceholderImage, PLACEHOLDER_TYPES } from "@/lib/placeholder-images";
 import ChallengeHeader from "./ChallengeHeader";
 import ChallengeDescription from "./ChallengeDescription";
 import ProgressTimeline from "./ProgressTimeline";
@@ -58,7 +59,7 @@ const dummyProgresses = [
     id: "1",
     date: "2025/07/09",
     content: "羽田から出発！不安もあるけどワクワク！",
-    imageUrl: "https://via.placeholder.com/400x300/87CEEB/FFFFFF?text=出発写真",
+    imageUrl: getPlaceholderImage(PLACEHOLDER_TYPES.CHALLENGE),
     applauseCount: 6,
     commentCount: 3
   },

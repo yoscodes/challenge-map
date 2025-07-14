@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ProfileHeader from "./ProfileHeader";
 import UserStats from "./UserStats";
@@ -8,6 +8,8 @@ import TabSwitcher from "./TabSwitcher";
 import ChallengeCardList from "./ChallengeCardList";
 import SupporterList from "./SupporterList";
 import EditLinks from "./EditLinks";
+import { useAuth } from "@/contexts/AuthContext";
+import { users, challenges as challengesApi, progressUpdates, supporters as supportersApi } from "@/lib/database";
 import { getPlaceholderImage, PLACEHOLDER_TYPES } from "@/lib/placeholder-images";
 
 type Tab = "active" | "completed" | "supporters";
@@ -15,76 +17,98 @@ type Tab = "active" | "completed" | "supporters";
 const MyPageLayout = () => {
   const [activeTab, setActiveTab] = useState<Tab>("active");
   const router = useRouter();
+  const { user, loading } = useAuth();
+  const [profile, setProfile] = useState<any>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [challengesData, setChallengesData] = useState<any[]>([]);
+  const [challengesLoading, setChallengesLoading] = useState(true);
+  const [progressLoading, setProgressLoading] = useState(true);
+  const [supportersData, setSupportersData] = useState<any[]>([]);
+  const [supportersLoading, setSupportersLoading] = useState(true);
 
-  // ダミーデータ
-  const userData = {
-    username: "@ai_traveler",
-    profileImage: getPlaceholderImage(PLACEHOLDER_TYPES.USER),
-    bio: "世界一周旅行を目指す冒険者です。異文化体験を通じて自分自身の視野を広げたいと思っています。",
-    location: "東京 → 世界各地",
-    website: "https://example.com",
-    twitter: "https://twitter.com/ai_traveler",
-    instagram: "https://instagram.com/ai_traveler"
-  };
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+      setProfileLoading(true);
+      const { data, error } = await users.getById(user.id);
+      setProfileLoading(false);
+      if (error) {
+        setProfile(null);
+        return;
+      }
+      setProfile(data);
+    };
+    if (user) fetchProfile();
+  }, [user]);
 
+  useEffect(() => {
+    const fetchChallengesAndProgress = async () => {
+      if (!user) return;
+      setChallengesLoading(true);
+      setProgressLoading(true);
+      const { data: challenges, error } = await challengesApi.getByUserId(user.id);
+      setChallengesLoading(false);
+      if (error || !challenges) {
+        setChallengesData([]);
+        setProgressLoading(false);
+        return;
+      }
+      // 各チャレンジの進捗を取得
+      const challengesWithProgress = await Promise.all(
+        challenges.map(async (challenge: any) => {
+          const { data: progresses } = await progressUpdates.getByChallengeId(challenge.id);
+          return {
+            ...challenge,
+            progressDay: progresses ? progresses.length : 0,
+            latestProgressDate: progresses && progresses.length > 0 ? progresses[progresses.length - 1].created_at : null
+          };
+        })
+      );
+      setChallengesData(challengesWithProgress);
+      setProgressLoading(false);
+    };
+    if (user) fetchChallengesAndProgress();
+  }, [user]);
+
+  useEffect(() => {
+    const fetchSupporters = async () => {
+      if (!user) return;
+      setSupportersLoading(true);
+      const { data, error } = await supportersApi.getByUserId(user.id);
+      setSupportersLoading(false);
+      if (error) {
+        setSupportersData([]);
+        return;
+      }
+      setSupportersData(data || []);
+    };
+    if (user) fetchSupporters();
+  }, [user]);
+
+  if (loading || profileLoading || challengesLoading || progressLoading || supportersLoading) {
+    return <div style={{ textAlign: 'center', padding: 40 }}>読み込み中...</div>;
+  }
+  if (!user) {
+    return <div style={{ textAlign: 'center', padding: 40 }}>ログインしてください</div>;
+  }
+  if (!profile) {
+    return <div style={{ textAlign: 'center', padding: 40 }}>プロフィール情報が取得できませんでした</div>;
+  }
+
+  // TODO: statsData, challengesData, supportersDataもAPI連携にする
   const statsData = {
-    supporterCount: 12,
-    applauseCount: 132,
-    continuousDays: 37,
-    completedChallenges: 2
+    supporterCount: 0,
+    applauseCount: 0,
+    continuousDays: 0,
+    completedChallenges: 0
   };
-
-  const challengesData = [
-    {
-      id: "1",
-      title: "世界一周、まずは台湾から",
-      status: "active" as const,
-      progressDay: 17,
-      applauseCount: 32,
-      supporterCount: 5,
-      coverImage: getPlaceholderImage(PLACEHOLDER_TYPES.CHALLENGE)
-    },
-    {
-      id: "2",
-      title: "朝5時起き生活",
-      status: "active" as const,
-      progressDay: 10,
-      applauseCount: 12,
-      coverImage: getPlaceholderImage(PLACEHOLDER_TYPES.CHALLENGE)
-    },
-    {
-      id: "3",
-      title: "英語100時間勉強",
-      status: "completed" as const,
-      applauseCount: 42,
-      completionComment: "TOEICスコアが100点アップしました！"
-    }
-  ];
-
-  const supportersData = [
-    {
-      id: "1",
-      username: "kenta_san",
-      amount: 500,
-      type: "monthly" as const,
-      comment: "がんばって！",
-      profileImage: getPlaceholderImage(PLACEHOLDER_TYPES.AVATAR)
-    },
-    {
-      id: "2",
-      username: "megu123",
-      amount: 1000,
-      type: "oneTime" as const,
-      profileImage: getPlaceholderImage(PLACEHOLDER_TYPES.AVATAR)
-    }
-  ];
 
   const renderTabContent = () => {
     switch (activeTab) {
       case "active":
-        return <ChallengeCardList challenges={challengesData} type="active" />;
+        return <ChallengeCardList challenges={challengesData.filter(c => c.status !== 'completed')} type="active" />;
       case "completed":
-        return <ChallengeCardList challenges={challengesData} type="completed" />;
+        return <ChallengeCardList challenges={challengesData.filter(c => c.status === 'completed')} type="completed" />;
       case "supporters":
         return <SupporterList supporters={supportersData} />;
       default:
@@ -114,7 +138,22 @@ const MyPageLayout = () => {
             マイページ
           </h1>
         </div>
-        <ProfileHeader {...userData} />
+        <ProfileHeader
+          username={profile.username ? `@${profile.username}` : 'ユーザー'}
+          profileImage={profile.avatar_url || getPlaceholderImage(PLACEHOLDER_TYPES.USER)}
+          bio={profile.bio || ''}
+          location={profile.location || ''}
+          website={profile.website || ''}
+          twitter={profile.twitter || ''}
+          instagram={profile.instagram || ''}
+          userId={user.id}
+          onAvatarChange={async (url) => {
+            await users.update(user.id, { avatar_url: url });
+            // プロフィール再取得
+            const { data } = await users.getById(user.id);
+            setProfile(data);
+          }}
+        />
         <UserStats {...statsData} />
         <TabSwitcher activeTab={activeTab} onTabChange={setActiveTab} />
         {renderTabContent()}

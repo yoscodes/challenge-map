@@ -7,7 +7,7 @@ import { getImageUrlFromStorage } from "@/lib/storage";
 import type { ProgressComment } from "@/lib/supabase";
 import ApplauseButton from "@/components/common/ApplauseButton";
 import { getApplauseCount, isApplaudedByUser } from "@/lib/applause";
-import ReportModal from '@/components/common/ReportModal';
+import { progressUpdates } from '@/lib/database';
 
 type ProgressCommentData = {
   id: string;
@@ -26,9 +26,10 @@ type ProgressCardProps = {
   images?: string[];
   applauseCount: number;
   commentCount: number;
+  onDelete?: (id: string) => void; // 追加
 };
 
-const ProgressCard = ({ id, date, content, imageUrl, images, applauseCount, commentCount }: ProgressCardProps) => {
+const ProgressCard = ({ id, date, content, imageUrl, images, applauseCount, commentCount, onDelete }: ProgressCardProps) => {
   const { user, loading } = useAuth();
   const [comments, setComments] = useState<ProgressCommentData[]>([]);
   const [showComments, setShowComments] = useState(false);
@@ -38,7 +39,7 @@ const ProgressCard = ({ id, date, content, imageUrl, images, applauseCount, comm
   const [error, setError] = useState<string | null>(null);
   const [applauseCnt, setApplauseCnt] = useState(applauseCount || 0);
   const [applauded, setApplauded] = useState(false);
-  const [reportOpen, setReportOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false); // 追加
 
   // 初期拍手数・状態取得
   useEffect(() => {
@@ -89,32 +90,35 @@ const ProgressCard = ({ id, date, content, imageUrl, images, applauseCount, comm
     try {
       const commentData = {
         progress_id: id,
-        user_id: isAnonymous ? undefined : user.id,
+        user_id: user.id,
         content: newComment.trim(),
-        is_anonymous: isAnonymous,
       };
 
       const { data, error: commentError } = await commentsAPI.createProgressComment(commentData);
 
       if (commentError) {
         console.error('進捗コメント投稿エラー:', commentError);
-        setError('コメントの投稿に失敗しました。');
+        // コメント機能が無効な場合の特別な処理
+        if (commentError && typeof commentError === 'object' && 'message' in commentError && commentError.message === '進捗コメント機能は現在利用できません') {
+          setError('コメント機能は現在メンテナンス中です。しばらくお待ちください。');
+        } else {
+          setError('コメントの投稿に失敗しました。');
+        }
         return;
       }
 
       // 新しいコメントを追加
       const newCommentData: ProgressCommentData = {
         id: data.id,
-        author: isAnonymous ? '匿名' : user.email?.split('@')[0] || 'Unknown',
+        author: user.email?.split('@')[0] || 'Unknown',
         content: newComment.trim(),
         date: new Date().toLocaleString('ja-JP'),
-        isAnonymous,
+        isAnonymous: false,
         canDelete: true,
       };
 
       setComments([...comments, newCommentData]);
       setNewComment("");
-      setIsAnonymous(false);
 
     } catch (err) {
       console.error('進捗コメント投稿エラー:', err);
@@ -132,7 +136,12 @@ const ProgressCard = ({ id, date, content, imageUrl, images, applauseCount, comm
       
       if (error) {
         console.error('進捗コメント削除エラー:', error);
-        setError('コメントの削除に失敗しました。');
+        // コメント機能が無効な場合の特別な処理
+        if (error && typeof error === 'object' && 'message' in error && error.message === '進捗コメント機能は現在利用できません') {
+          setError('コメント機能は現在メンテナンス中です。しばらくお待ちください。');
+        } else {
+          setError('コメントの削除に失敗しました。');
+        }
         return;
       }
 
@@ -141,6 +150,18 @@ const ProgressCard = ({ id, date, content, imageUrl, images, applauseCount, comm
       console.error('進捗コメント削除エラー:', err);
       setError('コメントの削除に失敗しました。');
     }
+  };
+
+  const handleDeleteProgress = async () => {
+    if (!window.confirm('この進捗を本当に削除しますか？')) return;
+    setIsDeleting(true);
+    const { error } = await progressUpdates.delete(id);
+    setIsDeleting(false);
+    if (error) {
+      alert('削除に失敗しました');
+      return;
+    }
+    if (onDelete) onDelete(id);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -169,9 +190,29 @@ const ProgressCard = ({ id, date, content, imageUrl, images, applauseCount, comm
         alignItems: 'center', 
         marginBottom: 12,
         fontSize: 14,
-        color: '#666'
+        color: '#666',
+        justifyContent: 'space-between' // 追加
       }}>
-        🔽 {date}
+        <span>🔽 {date}</span>
+        {/* 削除ボタン */}
+        {onDelete && (
+          <button
+            onClick={handleDeleteProgress}
+            disabled={isDeleting}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#ff4d4f',
+              cursor: isDeleting ? 'not-allowed' : 'pointer',
+              fontSize: 14,
+              padding: '2px 8px',
+              borderRadius: 4
+            }}
+            title="進捗を削除"
+          >
+            🗑️
+          </button>
+        )}
       </div>
       
       {/* Storage画像を表示 */}
@@ -236,12 +277,6 @@ const ProgressCard = ({ id, date, content, imageUrl, images, applauseCount, comm
           }}
         >
           💬 {comments.length}コメント
-        </button>
-        <button
-          onClick={() => setReportOpen(true)}
-          style={{ marginLeft: 8, background: '#ff7875', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 12px', fontSize: 13, cursor: 'pointer' }}
-        >
-          通報
         </button>
       </div>
 
@@ -412,12 +447,6 @@ const ProgressCard = ({ id, date, content, imageUrl, images, applauseCount, comm
           </div>
         </div>
       )}
-      <ReportModal
-        open={reportOpen}
-        onClose={() => setReportOpen(false)}
-        targetType="progress"
-        targetId={id}
-      />
     </div>
   );
 };

@@ -23,20 +23,13 @@ const ApplauseButton: React.FC<ApplauseButtonProps> = ({
   const [loading, setLoading] = useState(false);
 
   const handleClick = async () => {
-    if (!user || loading) return;
+    if (!user || loading || applauded) return; // 拍手済みなら何もしない
     setLoading(true);
     try {
-      if (applauded) {
-        await removeApplause(user.id, targetType, targetId);
-        setApplauded(false);
-        setCount((c) => c - 1);
-        onChange?.(false, count - 1);
-      } else {
-        await addApplause(user.id, targetType, targetId);
-        setApplauded(true);
-        setCount((c) => c + 1);
-        onChange?.(true, count + 1);
-      }
+      await addApplause(user.id, targetType, targetId);
+      setApplauded(true);
+      setCount((c) => c + 1);
+      onChange?.(true, count + 1);
     } catch (e) {
       alert("エラーが発生しました");
     } finally {
@@ -47,7 +40,7 @@ const ApplauseButton: React.FC<ApplauseButtonProps> = ({
   return (
     <button
       onClick={handleClick}
-      disabled={!user || loading}
+      disabled={!user || loading || applauded}
       style={{
         display: "inline-flex",
         alignItems: "center",
@@ -59,14 +52,15 @@ const ApplauseButton: React.FC<ApplauseButtonProps> = ({
         borderRadius: 20,
         fontWeight: "bold",
         fontSize: 15,
-        cursor: user && !loading ? "pointer" : "not-allowed",
+        cursor: !user || loading || applauded ? "not-allowed" : "pointer",
         transition: "all 0.2s",
         minWidth: 64,
       }}
-      title={user ? (applauded ? "拍手を取り消す" : "拍手する") : "ログインが必要です"}
+      title={user ? (applauded ? "拍手済み" : "拍手する") : "ログインが必要です"}
     >
       <span style={{ fontSize: 18 }}>{applauded ? "👏" : "🖐"}</span>
       <span>{count}</span>
+      {applauded && <span style={{ marginLeft: 4, fontSize: 13 }}>拍手済み</span>}
     </button>
   );
 };

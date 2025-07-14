@@ -14,7 +14,7 @@ export async function uploadImageToStorage(
 ): Promise<{ data: any; error: string | null }> {
   const { data, error } = await supabase.storage.from(bucket).upload(path, file, {
     cacheControl: '3600',
-    upsert: false,
+    upsert: true,
   });
   if (error) {
     return { data: null, error: error.message };

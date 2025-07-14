@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import { getPlaceholderImage, PLACEHOLDER_TYPES } from "@/lib/placeholder-images";
 import Link from 'next/link';
 import FollowButton from '@/components/common/FollowButton';
 
@@ -229,7 +230,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 }}
               >
                 <img
-                  src={user.avatar_url || "https://via.placeholder.com/48x48/87CEEB/FFFFFF?text=👤"}
+                  src={user.avatar_url || getPlaceholderImage(PLACEHOLDER_TYPES.AVATAR_SMALL)}
                   alt="アバター"
                   style={{
                     width: '48px',
@@ -237,6 +238,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                     borderRadius: '50%',
                     objectFit: 'cover'
                   }}
+                  onError={(e) => { e.currentTarget.src = getPlaceholderImage(PLACEHOLDER_TYPES.AVATAR_SMALL); }}
                 />
                 <div style={{ flex: 1 }}>
                   <Link

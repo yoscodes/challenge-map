@@ -54,7 +54,7 @@ export default function HomePage() {
       >
         <HeroMessage />
         <SearchBar />
-        <MainLayout />
+        <MainLayout challenges={challengeList} />
         <ChallengeList 
           challenges={challengeList}
           isLoading={isLoading}
