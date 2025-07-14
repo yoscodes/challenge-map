@@ -97,96 +97,92 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       {/* チャレンジ結果 */}
       {(searchType === 'all' || searchType === 'challenges') && results.challenges && results.challenges.length > 0 && (
         <div style={{
           background: '#fff',
-          borderRadius: '12px',
-          padding: '24px',
-          border: '1px solid #eee'
+          borderRadius: '18px',
+          boxShadow: '0 4px 24px #2563eb13',
+          padding: '32px',
+          border: 'none',
         }}>
-          <h3 style={{
-            margin: '0 0 20px 0',
-            fontSize: '20px',
-            fontWeight: 'bold',
-            color: '#333',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
-            🎯 チャレンジ ({results.challenges.length})
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+            <span style={{
+              display: 'inline-block',
+              background: 'linear-gradient(90deg,#2563eb,#60a5fa)',
+              color: '#fff',
+              fontWeight: 700,
+              fontSize: 16,
+              borderRadius: 12,
+              padding: '4px 18px',
+              letterSpacing: 0.5,
+              boxShadow: '0 2px 8px #2563eb22',
+            }}>🎯 チャレンジ</span>
+            <span style={{ color: '#2563eb', fontWeight: 700, fontSize: 16 }}>({results.challenges.length})</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {results.challenges.map((challenge: any) => (
               <Link
                 key={challenge.id}
                 href={`/challenge/${challenge.id}`}
                 style={{
                   display: 'block',
-                  padding: '16px',
-                  border: '1px solid #f0f0f0',
-                  borderRadius: '8px',
+                  padding: '24px',
+                  borderRadius: '14px',
+                  background: '#f8fafc',
+                  boxShadow: '0 2px 8px #2563eb0a',
                   textDecoration: 'none',
                   color: 'inherit',
-                  transition: 'all 0.2s ease'
+                  transition: 'all 0.2s',
+                  border: '1px solid #e0e7ef',
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = '#1890ff';
-                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(24, 144, 255, 0.1)';
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = '#e0e7ef';
+                  e.currentTarget.style.boxShadow = '0 4px 16px #2563eb22';
                 }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = '#f0f0f0';
-                  e.currentTarget.style.boxShadow = 'none';
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = '#f8fafc';
+                  e.currentTarget.style.boxShadow = '0 2px 8px #2563eb0a';
                 }}
               >
-                <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
                   <div style={{
-                    width: '60px',
-                    height: '60px',
-                    background: '#f0f8ff',
-                    borderRadius: '8px',
+                    width: '64px',
+                    height: '64px',
+                    background: 'linear-gradient(135deg,#e0e7ef 0%,#f8fafc 100%)',
+                    borderRadius: '12px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '24px'
+                    fontSize: '32px',
+                    color: '#2563eb',
+                    flexShrink: 0,
                   }}>
                     🎯
                   </div>
-                  <div style={{ flex: 1 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <h4 style={{
-                      margin: '0 0 8px 0',
-                      fontSize: '16px',
+                      margin: '0 0 10px 0',
+                      fontSize: '20px',
                       fontWeight: 'bold',
-                      color: '#333'
-                    }}>
-                      {challenge.title}
-                    </h4>
+                      color: '#222',
+                      letterSpacing: 0.2,
+                      lineHeight: 1.2,
+                      overflowWrap: 'break-word',
+                    }}>{challenge.title}</h4>
                     <p style={{
-                      margin: '0 0 8px 0',
-                      fontSize: '14px',
-                      color: '#666',
-                      lineHeight: '1.4'
-                    }}>
-                      {challenge.description.length > 100 
-                        ? `${challenge.description.substring(0, 100)}...` 
-                        : challenge.description
-                      }
-                    </p>
-                    <div style={{
-                      display: 'flex',
-                      gap: '12px',
-                      fontSize: '12px',
-                      color: '#999'
-                    }}>
+                      margin: '0 0 10px 0',
+                      fontSize: '15px',
+                      color: '#555',
+                      lineHeight: '1.5',
+                      overflowWrap: 'break-word',
+                    }}>{challenge.description.length > 100 ? `${challenge.description.substring(0, 100)}...` : challenge.description}</p>
+                    <div style={{ display: 'flex', gap: '16px', fontSize: '13px', color: '#2563eb', fontWeight: 600 }}>
                       <span>👤 {challenge.users?.username}</span>
                       <span>📂 {challenge.category}</span>
                       {challenge.location && (
-                        <span>📍 {
-                          typeof challenge.location === 'string' 
-                            ? challenge.location 
-                            : challenge.location.address
-                        }</span>
+                        <span>📍 {typeof challenge.location === 'string' ? challenge.location : challenge.location.address}</span>
                       )}
                     </div>
                   </div>

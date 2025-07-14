@@ -26,7 +26,7 @@ const SupporterVoices = ({ voices }: SupporterVoicesProps) => {
       marginBottom: 24,
       border: '1px solid #eee'
     }}>
-      <h3 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>
+      <h3 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16, color: '#222' }}>
         💬 支援者の声
       </h3>
       

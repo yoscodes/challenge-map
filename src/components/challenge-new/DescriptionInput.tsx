@@ -28,61 +28,34 @@ const DescriptionInput = ({ description, onDescriptionChange }: DescriptionInput
   };
 
   return (
-    <section style={{ marginBottom: 32 }}>
-      <h2 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>
-        ✨ なぜこのチャレンジをするのか？（説明）
+    <section className="desc-section">
+      <h2 className="desc-title">
+        <span className="desc-badge">✨ なぜこのチャレンジをするのか？（説明）</span>
       </h2>
-      <div style={{ marginBottom: 8 }}>
+      <div className="desc-field-wrap">
         <textarea
           value={description}
           onChange={(e) => onDescriptionChange(e.target.value)}
           placeholder="「自分への挑戦」「過去の悔しさ」「夢」など動機を書く"
-          style={{
-            width: '100%',
-            minHeight: 120,
-            padding: '12px 16px',
-            border: '1px solid #ddd',
-            borderRadius: 8,
-            fontSize: 16,
-            lineHeight: 1.5,
-            resize: 'vertical',
-            boxSizing: 'border-box'
-          }}
+          className="desc-field"
+          maxLength={1000}
         />
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ fontSize: 14, color: '#666' }}>
+      <div className="desc-bottom">
+        <div className="desc-length">
           {description.length}/1000文字
         </div>
-        <div style={{ fontSize: 14, color: '#666' }}>
-          Markdown対応
-        </div>
+        <div className="desc-markdown">Markdown対応</div>
       </div>
       <button
         onClick={handleGPTSuggest}
         disabled={loading}
-        style={{
-          marginTop: 12,
-          padding: '8px 16px',
-          background: '#722ed1',
-          color: '#fff',
-          border: 'none',
-          borderRadius: 6,
-          fontSize: 14,
-          cursor: loading ? 'not-allowed' : 'pointer'
-        }}
+        className="desc-gpt-btn"
+        type="button"
       >
         {loading ? '生成中...' : '🤖 GPT提案'}
       </button>
-      <div style={{ 
-        marginTop: 8, 
-        padding: '12px', 
-        background: '#f6ffed', 
-        border: '1px solid #b7eb8f', 
-        borderRadius: 6,
-        fontSize: 14,
-        color: '#52c41a'
-      }}>
+      <div className="desc-hint">
         💡 ヒント：「なぜ始めたいのか」「どんな変化を期待しているか」「過去の経験」などを書くと、他のユーザーにも共感されやすくなります。
       </div>
     </section>

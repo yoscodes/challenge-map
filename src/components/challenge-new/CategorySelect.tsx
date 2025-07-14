@@ -28,36 +28,24 @@ const CategorySelect = ({ selectedCategories, onCategoryChange }: CategorySelect
   };
 
   return (
-    <section style={{ marginBottom: 32 }}>
-      <h2 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>
-        🏷 カテゴリ選択（必須）
+    <section className="category-section">
+      <h2 className="category-title">
+        <span className="category-badge">🏷 カテゴリ選択（必須）</span>
       </h2>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+      <div className="category-list">
         {categories.map((category) => (
           <button
             key={category.id}
             onClick={() => handleCategoryClick(category.id)}
-            style={{
-              padding: '12px 20px',
-              border: selectedCategories.includes(category.id) 
-                ? '2px solid #1890ff' 
-                : '2px solid #ddd',
-              borderRadius: 8,
-              background: selectedCategories.includes(category.id) 
-                ? '#e6f7ff' 
-                : '#fff',
-              cursor: 'pointer',
-              fontSize: 16,
-              fontWeight: selectedCategories.includes(category.id) ? 'bold' : 'normal',
-              transition: 'all 0.2s ease'
-            }}
+            className={`category-btn${selectedCategories.includes(category.id) ? ' selected' : ''}`}
+            type="button"
           >
             {category.icon} {category.name}
           </button>
         ))}
       </div>
       {selectedCategories.length === 0 && (
-        <div style={{ color: '#ff4d4f', fontSize: 14, marginTop: 8 }}>
+        <div className="category-error">
           カテゴリを選択してください
         </div>
       )}

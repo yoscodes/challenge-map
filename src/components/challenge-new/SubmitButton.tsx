@@ -36,7 +36,7 @@ const SubmitButton = ({ onSubmit, isValid, isSubmitting }: SubmitButtonProps) =>
       <div style={{ 
         textAlign: 'center', 
         marginTop: 16, 
-        color: '#ff4d4f', 
+        color: '#222', 
         fontSize: 14 
       }}>
         必須項目を入力してください

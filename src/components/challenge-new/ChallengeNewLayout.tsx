@@ -15,24 +15,11 @@ import LocationInput from "./LocationInput";
 import PrivacySettings from "./PrivacySettings";
 import ImageUploader from "./ImageUploader";
 import SubmitButton from "./SubmitButton";
+import { supabase } from "@/lib/supabase";
 
 const ChallengeNewLayout = () => {
   const router = useRouter();
   const { user, loading } = useAuth();
-  
-  // 認証チェック
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-  
-  if (!user) {
-    router.push('/auth');
-    return null;
-  }
   
   const [formData, setFormData] = useState({
     categories: [] as string[],
@@ -50,19 +37,57 @@ const ChallengeNewLayout = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // 認証チェック - Hooksの呼び出し後に移動
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+  
+  if (!user) {
+    router.push('/auth');
+    return null;
+  }
+  
   const isValid = formData.categories.length > 0 && 
                  formData.title.length > 0 && 
                  formData.description.length > 0 && 
                  formData.goalDate.length > 0;
 
   const handleSubmit = async () => {
-    if (!isValid || !user) return;
-    
-    setIsSubmitting(true);
-    setError(null);
-    
+    if (!user || !isValid) return;
+
     try {
-      // チャレンジデータの作成
+      setIsSubmitting(true);
+      setError(null);
+
+      let coverImageUrl = null;
+
+      // 画像がある場合はSupabase Storageにアップロード
+      if (formData.coverImage) {
+        const fileExt = formData.coverImage.name.split('.').pop();
+        const fileName = `challenges/${user.id}/${Date.now()}.${fileExt}`;
+        
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(fileName, formData.coverImage);
+
+        if (uploadError) {
+          console.error('画像アップロードエラー:', uploadError);
+          setError('画像のアップロードに失敗しました。');
+          return;
+        }
+
+        // 公開URLを取得
+        const { data: urlData } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(fileName);
+
+        coverImageUrl = urlData.publicUrl;
+      }
+
       const challengeData = {
         user_id: user.id,
         title: formData.title,
@@ -72,7 +97,12 @@ const ChallengeNewLayout = () => {
         location: formData.location || undefined,
         is_public: formData.isPublic,
         status: 'planning' as const,
+        cover_image: coverImageUrl || undefined, // nullをundefinedに変更
       };
+
+      // デバッグ: チャレンジデータとcover_imageの値を確認
+      console.log('チャレンジ作成データ:', challengeData);
+      console.log('coverImageUrl:', coverImageUrl);
 
       const { data, error } = await challenges.create(challengeData);
       
@@ -177,89 +207,71 @@ const ChallengeNewLayout = () => {
   };
 
   return (
-    <div style={{ 
-      background: '#fafcff', 
-      minHeight: '100vh',
-      ...(isMobileView && { paddingBottom: '80px' })
-    }}>
-      <main style={{ 
-        maxWidth: isMobileView ? '100%' : 800, 
-        margin: '0 auto', 
-        padding: isMobileView ? '16px' : '24px' 
-      }}>
-        <ChallengeFormHeader />
-        
-        {error && (
-          <div style={{
-            marginBottom: '24px',
-            padding: '16px',
-            background: '#fff1f0',
-            border: '1px solid #ffccc7',
-            borderRadius: '8px'
-          }}>
-            <p style={{ color: '#ff4d4f', fontSize: '14px', margin: 0 }}>{error}</p>
-          </div>
-        )}
-        
-        {isMobileView ? (
-          <MobileForm
-            title="新しいチャレンジを作成"
-            fields={mobileFormFields}
-            onSubmit={handleMobileSubmit}
-            submitLabel="チャレンジを投稿"
-            loading={isSubmitting}
-            initialData={{
-              categories: formData.categories[0] || '',
-              title: formData.title,
-              description: formData.description,
-              goalDate: formData.goalDate,
-              location: formData.location
-            }}
-          />
-        ) : (
-          <form onSubmit={(e) => e.preventDefault()}>
-            <CategorySelect
-              selectedCategories={formData.categories}
-              onCategoryChange={(categories) => setFormData(prev => ({ ...prev, categories }))}
+    <div className="challenge-new-bg-top">
+      <div className="challenge-new-hero-message">
+        <span className="challenge-new-hero-icon">🚀</span>
+        新しいチャレンジを投稿する
+      </div>
+      <main className="challenge-new-main-top">
+        <div className="challenge-new-form-card">
+          {error && (
+            <div className="challenge-new-error">
+              <p>{error}</p>
+            </div>
+          )}
+          {isMobileView ? (
+            <MobileForm
+              title="新しいチャレンジを作成"
+              fields={mobileFormFields}
+              onSubmit={handleMobileSubmit}
+              submitLabel="チャレンジを投稿"
+              loading={isSubmitting}
+              initialData={{
+                categories: formData.categories[0] || '',
+                title: formData.title,
+                description: formData.description,
+                goalDate: formData.goalDate,
+                location: formData.location
+              }}
             />
-            
-            <TitleInput
-              title={formData.title}
-              onTitleChange={(title) => setFormData(prev => ({ ...prev, title }))}
-              onGPTSuggest={handleGPTSuggest}
-            />
-            
-            <DescriptionInput
-              description={formData.description}
-              onDescriptionChange={(description) => setFormData(prev => ({ ...prev, description }))}
-            />
-            
-            <GoalDateInput
-              goalDate={formData.goalDate}
-              onGoalDateChange={(goalDate) => setFormData(prev => ({ ...prev, goalDate }))}
-            />
-            
-            <LocationInput
-              location={formData.location}
-              onLocationChange={(location) => setFormData(prev => ({ ...prev, location }))}
-            />
-            
-            <PrivacySettings
-              isPublic={formData.isPublic}
-              onPrivacyChange={(isPublic) => setFormData(prev => ({ ...prev, isPublic }))}
-            />
-            
-            <ImageUploader
-              onImageChange={(coverImage) => setFormData(prev => ({ ...prev, coverImage }))}
-            />
-            
-            <SubmitButton
-              onSubmit={handleSubmit}
-              isValid={isValid}
-              isSubmitting={isSubmitting}
-            />
-          </form>
-        )}
+          ) : (
+            <form onSubmit={(e) => e.preventDefault()} className="challenge-new-form-layout">
+              <CategorySelect
+                selectedCategories={formData.categories}
+                onCategoryChange={(categories) => setFormData(prev => ({ ...prev, categories }))}
+              />
+              <TitleInput
+                title={formData.title}
+                onTitleChange={(title) => setFormData(prev => ({ ...prev, title }))}
+                onGPTSuggest={handleGPTSuggest}
+              />
+              <DescriptionInput
+                description={formData.description}
+                onDescriptionChange={(description) => setFormData(prev => ({ ...prev, description }))}
+              />
+              <GoalDateInput
+                goalDate={formData.goalDate}
+                onGoalDateChange={(goalDate) => setFormData(prev => ({ ...prev, goalDate }))}
+              />
+              <LocationInput
+                location={formData.location}
+                onLocationChange={(location) => setFormData(prev => ({ ...prev, location }))}
+              />
+              <PrivacySettings
+                isPublic={formData.isPublic}
+                onPrivacyChange={(isPublic) => setFormData(prev => ({ ...prev, isPublic }))}
+              />
+              <ImageUploader
+                onImageChange={(coverImage) => setFormData(prev => ({ ...prev, coverImage }))}
+              />
+              <SubmitButton
+                onSubmit={handleSubmit}
+                isValid={isValid}
+                isSubmitting={isSubmitting}
+              />
+            </form>
+          )}
+        </div>
       </main>
     </div>
   );

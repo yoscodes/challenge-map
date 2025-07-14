@@ -17,26 +17,29 @@ const TabSwitcher = ({ activeTab, onTabChange }: TabSwitcherProps) => {
   ];
 
   return (
-    <section style={{ marginBottom: 24 }}>
-      <div style={{ display: 'flex', borderBottom: '2px solid #eee' }}>
+    <section style={{ marginBottom: 28 }}>
+      <div style={{ display: 'flex', background: '#e0e7ef', borderRadius: 14, overflow: 'hidden', boxShadow: '0 2px 8px #2563eb11' }}>
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
             style={{
               flex: 1,
-              padding: '16px 24px',
+              padding: '16px 0',
               border: 'none',
-              background: 'transparent',
-              fontSize: 16,
-              fontWeight: activeTab === tab.id ? 'bold' : 'normal',
-              color: activeTab === tab.id ? '#1890ff' : '#666',
-              borderBottom: activeTab === tab.id ? '2px solid #1890ff' : 'none',
+              background: activeTab === tab.id ? 'linear-gradient(90deg,#2563eb,#60a5fa)' : 'transparent',
+              fontSize: 17,
+              fontWeight: activeTab === tab.id ? 800 : 500,
+              color: activeTab === tab.id ? '#fff' : '#2563eb',
+              borderRadius: 0,
+              boxShadow: activeTab === tab.id ? '0 2px 8px #2563eb33' : 'none',
+              letterSpacing: '0.02em',
               cursor: 'pointer',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s',
+              outline: 'none',
             }}
           >
-            {tab.icon} {tab.label}
+            <span style={{ fontSize: 20, marginRight: 6 }}>{tab.icon}</span> {tab.label}
           </button>
         ))}
       </div>

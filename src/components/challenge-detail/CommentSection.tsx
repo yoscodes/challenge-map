@@ -102,170 +102,117 @@ const CommentSection = ({ comments: initialComments, challengeId, onCommentAdded
 
   if (loading) {
     return (
-      <section style={{ marginBottom: 32 }}>
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+      <section className="comment-section-card">
+        <div className="comment-section-loading"></div>
       </section>
     );
   }
 
+  // textarea, コメントリスト、コメントアイテムのスタイルを強化
+  const textareaStyle = {
+    width: '100%',
+    minHeight: 64,
+    border: '1.5px solid #b6c2d9',
+    borderRadius: 10,
+    padding: '12px 14px',
+    fontSize: 15,
+    background: '#fff',
+    marginBottom: 10,
+    outline: 'none',
+    boxShadow: '0 1px 4px #b6c2d933',
+    resize: 'vertical' as const,
+    transition: 'border 0.2s',
+  };
+  const commentItemStyle = {
+    background: '#fff',
+    border: '1.2px solid #e2e8f0',
+    borderRadius: 10,
+    padding: '14px 16px',
+    marginBottom: 14,
+    boxShadow: '0 1px 6px #b6c2d922',
+  };
+
   return (
-    <section style={{ marginBottom: 32 }}>
-      <h3 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>
-        💬 コメント欄（応援メッセージ投稿）
-      </h3>
-      
+    <section className="comment-section-card">
       {!user ? (
-        <div style={{ 
-          padding: '16px', 
-          background: '#f8f9fa', 
-          borderRadius: 8, 
-          border: '1px solid #e9ecef',
-          textAlign: 'center',
-          color: '#666'
-        }}>
-          コメントを投稿するには<a href="/auth" style={{ color: '#1890ff', textDecoration: 'underline' }}>ログイン</a>してください
+        <div className="comment-section-login-required">
+          コメントを投稿するには<a href="/auth" className="comment-section-login-link">ログイン</a>してください
         </div>
       ) : (
-        <div style={{ marginBottom: 16 }}>
+        <div className="comment-section-form">
           <textarea 
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="応援メッセージを入力してください... (Ctrl+Enterで投稿)"
-            style={{ 
-              width: '100%', 
-              minHeight: 80, 
-              padding: 12, 
-              border: '1px solid #ddd', 
-              borderRadius: 8,
-              resize: 'vertical',
-              fontSize: 14,
-              lineHeight: 1.5
-            }}
+            className="comment-section-textarea"
             disabled={isSubmitting}
+            style={textareaStyle}
           />
-          
           {error && (
-            <div style={{ 
-              marginTop: 8, 
-              padding: '8px 12px', 
-              background: '#fff2f0', 
-              border: '1px solid #ffccc7', 
-              borderRadius: 4,
-              color: '#cf1322',
-              fontSize: 14
-            }}>
+            <div className="comment-section-error">
               {error}
             </div>
           )}
-          
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
-            marginTop: 8 
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 14 }}>
+          <div className="comment-section-form-bottom">
+            <div className="comment-section-form-meta">
+              <label className="comment-section-anonymous-label">
                 <input
                   type="checkbox"
                   checked={isAnonymous}
                   onChange={(e) => setIsAnonymous(e.target.checked)}
-                  style={{ margin: 0 }}
+                  className="comment-section-anonymous-checkbox"
                 />
                 匿名で投稿
               </label>
-              
-              <span style={{ fontSize: 12, color: '#666' }}>
+              <span className="comment-section-length">
                 {newComment.length}/500文字
               </span>
             </div>
-            
             <button 
               onClick={handleSubmit}
               disabled={!newComment.trim() || isSubmitting}
-              style={{ 
-                padding: '8px 16px',
-                background: newComment.trim() && !isSubmitting ? '#1890ff' : '#d9d9d9',
-                color: '#fff',
-                border: 'none',
-                borderRadius: 4,
-                cursor: newComment.trim() && !isSubmitting ? 'pointer' : 'not-allowed',
-                fontSize: 14
-              }}
+              className="comment-section-submit-btn"
             >
               {isSubmitting ? '投稿中...' : 'コメント投稿'}
             </button>
           </div>
         </div>
       )}
-      
-      <div>
+      <div className="comment-section-list">
         {comments.length === 0 ? (
-          <div style={{ 
-            padding: '24px', 
-            textAlign: 'center', 
-            color: '#666',
-            background: '#f8f9fa',
-            borderRadius: 8,
-            border: '1px solid #e9ecef'
-          }}>
-            まだコメントがありません。最初のコメントを投稿してみましょう！
-          </div>
+          <div className="comment-section-empty">まだコメントがありません。最初のコメントを投稿してみましょう！</div>
         ) : (
           comments.map((comment) => (
-            <div key={comment.id} style={{ 
-              border: '1px solid #eee', 
-              borderRadius: 8, 
-              padding: 12, 
-              marginBottom: 8,
-              background: '#fafafa'
-            }}>
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'flex-start',
-                marginBottom: 8
-              }}>
-                <div style={{ fontSize: 14, color: '#666' }}>
-                  <span style={{ fontWeight: 'bold', color: '#1890ff' }}>
+            <div key={comment.id} className="comment-section-item" style={commentItemStyle}>
+              <div className="comment-section-item-header">
+                <div className="comment-section-author">
+                  <span className="comment-section-author-name">
                     {comment.isAnonymous ? '匿名' : `@${comment.author}`}
                   </span>
-                  <span style={{ marginLeft: 8 }}>
+                  <span className="comment-section-date">
                     {comment.date}
                   </span>
                 </div>
-                
-                {comment.canDelete && (
+                <div className="comment-section-item-actions">
+                  {comment.canDelete && (
+                    <button
+                      onClick={() => handleDelete(comment.id)}
+                      className="comment-section-delete-btn"
+                      title="削除"
+                    >
+                      🗑️
+                    </button>
+                  )}
                   <button
-                    onClick={() => handleDelete(comment.id)}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#ff4d4f',
-                      cursor: 'pointer',
-                      fontSize: 12,
-                      padding: '4px 8px',
-                      borderRadius: 4
-                    }}
-                    title="削除"
+                    onClick={() => setReportTargetId(comment.id)}
+                    className="comment-section-report-btn"
                   >
-                    🗑️
+                    通報
                   </button>
-                )}
-                <button
-                  onClick={() => setReportTargetId(comment.id)}
-                  style={{ marginLeft: 8, background: '#ff7875', color: '#fff', border: 'none', borderRadius: 6, padding: '2px 8px', fontSize: 12, cursor: 'pointer' }}
-                >
-                  通報
-                </button>
+                </div>
               </div>
-              
-              <div style={{ 
-                lineHeight: 1.5,
-                fontSize: 14,
-                wordBreak: 'break-word'
-              }}>
+              <div className="comment-section-content">
                 {comment.content}
               </div>
             </div>
@@ -282,4 +229,4 @@ const CommentSection = ({ comments: initialComments, challengeId, onCommentAdded
   );
 };
 
-export default CommentSection; 
+export default CommentSection;

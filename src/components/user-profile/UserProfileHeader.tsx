@@ -72,7 +72,7 @@ const UserProfileHeader = ({
       
       {/* プロフィール情報 */}
       <div style={{ flex: 1 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 'bold', margin: '0 0 8px 0' }}>
+        <h1 style={{ fontSize: 24, fontWeight: 'bold', margin: '0 0 8px 0', color: '#222' }}>
           👤 {username}
         </h1>
         

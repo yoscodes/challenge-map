@@ -7,45 +7,38 @@ type PrivacySettingsProps = {
   onPrivacyChange: (isPublic: boolean) => void;
 };
 
-const PrivacySettings = ({ isPublic, onPrivacyChange }: PrivacySettingsProps) => (
-  <section style={{ marginBottom: 32 }}>
-    <h2 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>
-      🔓 公開設定
+const PrivacySettings = ({
+  isPublic,
+  onPrivacyChange,
+}: PrivacySettingsProps) => (
+  <section className="privacy-section">
+    <h2 className="privacy-title">
+      <span className="privacy-badge">🔓 公開設定</span>
     </h2>
-    <div style={{ display: 'flex', gap: 16 }}>
-      <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+    <div className="privacy-radio-group">
+      <label className="privacy-radio">
         <input
           type="radio"
           name="privacy"
           checked={isPublic}
           onChange={() => onPrivacyChange(true)}
-          style={{ marginRight: 8 }}
         />
-        <span style={{ fontSize: 16 }}>◉ 全体に公開</span>
+        <span>全体に公開</span>
       </label>
-      <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+      <label className="privacy-radio">
         <input
           type="radio"
           name="privacy"
           checked={!isPublic}
           onChange={() => onPrivacyChange(false)}
-          style={{ marginRight: 8 }}
         />
-        <span style={{ fontSize: 16 }}>◯ 非公開（後から切り替え可）</span>
+        <span>非公開（後から切り替え可）</span>
       </label>
     </div>
-    <div style={{ 
-      marginTop: 8, 
-      padding: '12px', 
-      background: '#fff7e6', 
-      border: '1px solid #ffd591', 
-      borderRadius: 6,
-      fontSize: 14,
-      color: '#d46b08'
-    }}>
+    <div className="privacy-hint">
       💡 非公開でも後から公開設定に変更できます。まずは非公開で始めて、慣れてきたら公開するのもおすすめです。
     </div>
   </section>
 );
 
-export default PrivacySettings; 
+export default PrivacySettings;

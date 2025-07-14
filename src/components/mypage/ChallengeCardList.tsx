@@ -24,12 +24,14 @@ const ChallengeCardList = ({ challenges, type }: ChallengeCardListProps) => {
   
   if (filteredChallenges.length === 0) {
     return (
-      <div style={{ 
+      <div className="card fade-in" style={{ 
         textAlign: 'center', 
         padding: '40px 20px', 
         color: '#666',
-        background: '#fafafa',
-        borderRadius: 12
+        background: '#f8fafc',
+        borderRadius: 16,
+        boxShadow: '0 2px 12px #2563eb11',
+        marginBottom: 24
       }}>
         {type === "active" ? "挑戦中のチャレンジはありません" : "完了したチャレンジはありません"}
       </div>
@@ -37,13 +39,15 @@ const ChallengeCardList = ({ challenges, type }: ChallengeCardListProps) => {
   }
 
   return (
-    <div>
-      {filteredChallenges.map((challenge) => (
-        <ChallengeCard
-          key={challenge.id}
-          {...challenge}
-        />
-      ))}
+    <div className="card fade-in" style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px #2563eb11', padding: '24px 18px', marginBottom: 24 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+        {filteredChallenges.map((challenge) => (
+          <ChallengeCard
+            key={challenge.id}
+            {...challenge}
+          />
+        ))}
+      </div>
     </div>
   );
 };

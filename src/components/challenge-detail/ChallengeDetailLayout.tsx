@@ -15,6 +15,7 @@ interface ChallengeData {
   targetDate: string;
   location: string;
   description: string;
+  coverImageUrl?: string; // 追加
   challengeId?: string;
 }
 
@@ -41,6 +42,10 @@ interface ChallengeDetailLayoutProps {
   progresses: ProgressData[];
   comments: CommentData[];
   onCommentAdded?: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  onBack?: () => void;
+  isOwner?: boolean;
 }
 
 // ダミーデータ
@@ -94,20 +99,234 @@ const dummyComments = [
   }
 ];
 
-const ChallengeDetailLayout = ({ challenge, progresses, comments, onCommentAdded }: ChallengeDetailLayoutProps) => (
-  <div style={{ background: '#fafcff', minHeight: '100vh' }}>
-    <main style={{ maxWidth: 800, margin: '0 auto', padding: '24px' }}>
-      <ChallengeHeader {...challenge} />
-      <ChallengeDescription description={challenge.description} />
-      <ProgressTimeline progresses={progresses} />
-      <CommentSection 
-        comments={comments} 
-        challengeId={challenge.challengeId || ''} 
-        onCommentAdded={onCommentAdded}
-      />
-      <GPTSupportTools />
-      <SupportButton author={challenge.author} />
+// sectionCardStyle, sectionTitleStyleは廃止
+const gradientBadgeStyle = {
+  display: 'inline-block',
+  padding: '4px 16px',
+  borderRadius: 16,
+  background: 'linear-gradient(90deg,#2563eb,#60a5fa)',
+  color: '#fff',
+  fontWeight: 700,
+  fontSize: 16,
+  letterSpacing: '0.02em',
+  marginBottom: 18,
+  boxShadow: '0 2px 8px #2563eb22',
+};
+const sectionStyle = {
+  marginBottom: 44,
+  padding: '0 0 32px 0',
+  background: 'none',
+  borderRadius: 0,
+  boxShadow: 'none',
+  border: 'none',
+};
+const subtleBgStyle = {
+  background: 'linear-gradient(90deg,#f8fafc 60%,#e0e7ef 100%)',
+  borderRadius: 18,
+  padding: '24px 20px',
+  marginTop: 12,
+  marginBottom: 0,
+  boxShadow: '0 2px 12px #2563eb0a',
+};
+
+const ChallengeDetailLayout = ({ challenge, progresses, comments, onCommentAdded, onEdit, onDelete, onBack, isOwner }: ChallengeDetailLayoutProps) => (
+  <div style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%)', minHeight: '100vh', padding: '0 0 40px 0'}}>
+    {/* Heroセクション（カバー画像＋オーバーレイ＋タイトル等） */}
+    <section style={{
+      position: 'relative',
+      width: '100%',
+      minHeight: 260,
+      maxHeight: 360,
+      overflow: 'hidden',
+      display: 'flex',
+      alignItems: 'flex-end',
+      justifyContent: 'center',
+      // marginBottom: 28,
+      zIndex: 2
+    }}>
+      {/* フローティングボタン群 */}
+      <div style={{
+        position: 'absolute',
+        top: 24,
+        right: 32,
+        zIndex: 10,
+        display: 'flex',
+        gap: 10
+      }}>
+        {onBack && (
+          <button
+            onClick={onBack}
+            style={{
+              padding: '7px 18px',
+              borderRadius: 8,
+              background: 'rgba(255,255,255,0.92)',
+              color: '#333',
+              border: '1px solid #ddd',
+              fontWeight: 700,
+              fontSize: 15,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+              cursor: 'pointer',
+              transition: 'background 0.2s',
+            }}
+          >← 戻る</button>
+        )}
+        {isOwner && onEdit && (
+          <button
+            onClick={onEdit}
+            style={{
+              padding: '7px 18px',
+              borderRadius: 8,
+              background: '#1890ff',
+              color: '#fff',
+              border: 'none',
+              fontWeight: 700,
+              fontSize: 15,
+              boxShadow: '0 2px 8px rgba(24,144,255,0.13)',
+              cursor: 'pointer',
+              transition: 'background 0.2s',
+            }}
+          >編集</button>
+        )}
+        {isOwner && onDelete && (
+          <button
+            onClick={onDelete}
+            style={{
+              padding: '7px 18px',
+              borderRadius: 8,
+              background: '#fff',
+              color: '#ff4d4f',
+              border: '1px solid #ff4d4f',
+              fontWeight: 700,
+              fontSize: 15,
+              boxShadow: '0 2px 8px rgba(255,77,79,0.10)',
+              cursor: 'pointer',
+              transition: 'background 0.2s',
+            }}
+          >削除</button>
+        )}
+      </div>
+      {/* カバー画像 or グラデ背景 */}
+      {challenge.coverImageUrl ? (
+        <img
+          src={challenge.coverImageUrl}
+          alt="cover"
+          style={{
+            width: '100%',
+            height: 320,
+            objectFit: 'cover',
+            filter: 'brightness(0.85)',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            zIndex: 1
+          }}
+        />
+      ) : (
+        <div style={{
+          width: '100%',
+          height: 320,
+          background: 'linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          zIndex: 1
+        }} />
+      )}
+      {/* オーバーレイ */}
+      <div style={{
+        position: 'absolute',
+        left: 0,
+        bottom: 0,
+        width: '100%',
+        height: 120,
+        background: 'linear-gradient(0deg, rgba(0,0,0,0.38) 60%, rgba(0,0,0,0.08) 100%)',
+        zIndex: 2
+      }} />
+      {/* タイトル・著者・カテゴリ */}
+      <div style={{
+        position: 'relative',
+        zIndex: 3,
+        width: '100%',
+        maxWidth: 900,
+        margin: '0 auto',
+        padding: '0 32px 32px 32px',
+        color: '#fff',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        gap: 12
+      }}>
+        <span style={{
+          display: 'inline-block',
+          background: 'rgba(0,0,0,0.32)',
+          borderRadius: 8,
+          padding: '4px 14px',
+          fontSize: 15,
+          fontWeight: 600,
+          letterSpacing: 0.5,
+          marginBottom: 4
+        }}>{challenge.category}</span>
+        <h1 style={{
+          fontSize: 32,
+          fontWeight: 800,
+          letterSpacing: '-0.02em',
+          margin: 0,
+          textShadow: '0 2px 8px rgba(0,0,0,0.18)'
+        }}>{challenge.title}</h1>
+        <div style={{
+          fontSize: 17,
+          fontWeight: 500,
+          opacity: 0.92,
+          marginTop: 2
+        }}>by <span style={{ fontWeight: 700 }}>{challenge.author}</span></div>
+      </div>
+    </section>
+    {/* メインカード部分 */}
+    <main className="card fade-in" style={{ maxWidth: 900, margin: '0 auto', padding: '72px 0 40px 0', background: 'none', borderRadius: 24, boxShadow: 'none', border: 'none', position: 'relative', zIndex: 4 }}>
+      {/* チャレンジ説明 */}
+      <section style={sectionStyle}>
+        <div style={gradientBadgeStyle}>📝 チャレンジの詳細説明（なぜ始めたか）</div>
+        <div style={subtleBgStyle}>
+          <ChallengeDescription description={challenge.description} />
+        </div>
+      </section>
+      {/* 進捗タイムライン */}
+      <section style={sectionStyle}>
+        <div style={gradientBadgeStyle}>🧭 進捗タイムライン（降順）</div>
+        <div style={subtleBgStyle}>
+          <ProgressTimeline progresses={progresses} challengeId={challenge.challengeId || ''} />
+        </div>
+      </section>
+      {/* コメント欄 */}
+      <section style={sectionStyle}>
+        <div style={gradientBadgeStyle}>💬 コメント欄（応援メッセージ投稿）</div>
+        <div style={subtleBgStyle}>
+          <CommentSection 
+            comments={comments} 
+            challengeId={challenge.challengeId || ''} 
+            onCommentAdded={onCommentAdded}
+          />
+        </div>
+      </section>
+      {/* GPTサポートツール */}
+      <section style={sectionStyle}>
+        <div style={gradientBadgeStyle}>🤖 GPTサポートツール</div>
+        <div style={subtleBgStyle}>
+          <GPTSupportTools />
+        </div>
+      </section>
+      {/* サポートボタン（下部に目立たせて表示） */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
+        <SupportButton author={challenge.author} />
+      </div>
     </main>
+    {/* アニメーション用CSS */}
+    <style>{`
+      @keyframes fadeInUp {
+        0% { opacity: 0; transform: translateY(32px); }
+        100% { opacity: 1; transform: none; }
+      }
+    `}</style>
   </div>
 );
 

@@ -37,15 +37,10 @@ const ChallengeHeader = ({ title, author, category, startDate, targetDate, locat
   }, [challengeId, user]);
 
   return (
-    <div style={{ borderBottom: '1px solid #eee', paddingBottom: 16, marginBottom: 24 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <Link href="/" style={{ marginRight: 16, padding: '8px 12px', border: '1px solid #ddd', borderRadius: 4, background: '#fff', textDecoration: 'none', color: '#333' }}>
-            ← 戻る
-          </Link>
-          <h1 style={{ fontSize: 24, fontWeight: 'bold', margin: 0 }}>{title}</h1>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+    <div className="challenge-header-card">
+      <div className="challenge-header-top">
+        <h1 className="challenge-header-title">{title}</h1>
+        <div className="challenge-header-actions">
           {challengeId && (
             <ApplauseButton
               targetType="challenge"
@@ -58,29 +53,24 @@ const ChallengeHeader = ({ title, author, category, startDate, targetDate, locat
           {challengeId && (
             <Link 
               href={`/challenge/${challengeId}/progress/new`}
-              style={{ 
-                padding: '8px 16px', 
-                background: '#007bff', 
-                color: 'white', 
-                borderRadius: 4, 
-                textDecoration: 'none',
-                fontSize: 14
-              }}
+              className="challenge-header-progress-btn"
             >
-              📝 進捗を投稿
+              <span role="img" aria-label="進捗">📝</span> 進捗を投稿
             </Link>
           )}
         </div>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 14, color: '#666' }}>
-        <div>
-          👤 投稿者：{author}　🌐 カテゴリ：{category}
+      <div className="challenge-header-info">
+        <div className="challenge-header-badges">
+          <span className="challenge-header-badge"><span role="img" aria-label="投稿者">👤</span> {author}</span>
+          <span className="challenge-header-badge"><span role="img" aria-label="カテゴリ">🌐</span> {category}</span>
         </div>
-        <div>
-          🗓 開始：{startDate}　目標日：{targetDate}
+        <div className="challenge-header-badges">
+          <span className="challenge-header-badge"><span role="img" aria-label="開始">🗓</span> 開始：{startDate}</span>
+          <span className="challenge-header-badge">目標日：{targetDate}</span>
         </div>
-        <div>
-          📍 実施場所：{location}
+        <div className="challenge-header-badges">
+          <span className="challenge-header-badge"><span role="img" aria-label="場所">📍</span> {location}</span>
         </div>
       </div>
     </div>

@@ -10,7 +10,7 @@ const EditLinks = () => (
     marginTop: 32,
     border: '1px solid #eee'
   }}>
-    <h3 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>
+    <h3 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16, color: "#222" }}>
       🛠 設定・編集リンク
     </h3>
     

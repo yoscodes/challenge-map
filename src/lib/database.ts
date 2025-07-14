@@ -33,18 +33,32 @@ export const challenges = {
   async getById(id: string) {
     console.log('チャレンジ取得開始:', id);
     
-    const { data, error } = await supabase
-      .from('challenges')
-      .select(`
-        *,
-        users!inner(username, avatar_url, bio)
-      `)
-      .eq('id', id)
-      .single();
-    
-    console.log('チャレンジ取得結果:', { data, error });
-    
-    return { data, error };
+    try {
+      const { data, error } = await supabase
+        .from('challenges')
+        .select(`
+          *,
+          users!inner(username, avatar_url, bio)
+        `)
+        .eq('id', id)
+        .single();
+      
+      console.log('チャレンジ取得結果:', { data, error });
+      
+      if (error) {
+        console.error('チャレンジ取得エラー詳細:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+      }
+      
+      return { data, error };
+    } catch (err) {
+      console.error('チャレンジ取得例外:', err);
+      return { data: null, error: err };
+    }
   },
 
   // チャレンジ作成
@@ -60,14 +74,32 @@ export const challenges = {
 
   // チャレンジ更新
   async update(id: string, updates: Partial<Challenge>) {
-    const { data, error } = await supabase
-      .from('challenges')
-      .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('id', id)
-      .select()
-      .single();
+    console.log('チャレンジ更新開始:', { id, updates });
     
-    return { data, error };
+    try {
+      const { data, error } = await supabase
+        .from('challenges')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+      
+      console.log('チャレンジ更新結果:', { data, error });
+      
+      if (error) {
+        console.error('チャレンジ更新エラー詳細:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+      }
+      
+      return { data, error };
+    } catch (err) {
+      console.error('チャレンジ更新例外:', err);
+      return { data: null, error: err };
+    }
   },
 
   // チャレンジ削除

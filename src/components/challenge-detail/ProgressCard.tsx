@@ -26,10 +26,11 @@ type ProgressCardProps = {
   images?: string[];
   applauseCount: number;
   commentCount: number;
+  progressType?: string; // 追加
   onDelete?: (id: string) => void; // 追加
 };
 
-const ProgressCard = ({ id, date, content, imageUrl, images, applauseCount, commentCount, onDelete }: ProgressCardProps) => {
+const ProgressCard = ({ id, date, content, imageUrl, images, applauseCount, commentCount, progressType, onDelete }: ProgressCardProps) => {
   const { user, loading } = useAuth();
   const [comments, setComments] = useState<ProgressCommentData[]>([]);
   const [showComments, setShowComments] = useState(false);
@@ -40,6 +41,15 @@ const ProgressCard = ({ id, date, content, imageUrl, images, applauseCount, comm
   const [applauseCnt, setApplauseCnt] = useState(applauseCount || 0);
   const [applauded, setApplauded] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false); // 追加
+
+  // 進捗タイプのバッジ色
+  const typeBadge = (type?: string) => {
+    if (type === 'achievement') return { label: '成果', color: '#36d1c4' };
+    if (type === 'trouble') return { label: '悩み', color: '#ff4d4f' };
+    if (type === 'plan') return { label: '計画', color: '#1890ff' };
+    return { label: type || 'その他', color: '#bbb' };
+  };
+  const badge = typeBadge(progressType);
 
   // 初期拍手数・状態取得
   useEffect(() => {
@@ -178,275 +188,185 @@ const ProgressCard = ({ id, date, content, imageUrl, images, applauseCount, comm
   }, [showComments]);
 
   return (
-    <div style={{ 
-      border: '1px solid #eee', 
-      borderRadius: 8, 
-      padding: 16, 
-      marginBottom: 16,
-      background: '#fff'
-    }}>
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        marginBottom: 12,
-        fontSize: 14,
-        color: '#666',
-        justifyContent: 'space-between' // 追加
+    <div style={{ display: 'flex', alignItems: 'flex-start', position: 'relative', marginBottom: 48 }}>
+      {/* タイムライン縦線＋日付バッジ */}
+      <div style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 64, position: 'relative', zIndex: 2
       }}>
-        <span>🔽 {date}</span>
-        {/* 削除ボタン */}
+        <div style={{
+          width: 16, height: 16, borderRadius: 8, background: 'linear-gradient(90deg,#36d1c4,#5b86e5)', marginBottom: 4, border: '2px solid #fff', boxShadow: '0 2px 8px #36d1c422'
+        }} />
+        <div style={{
+          background: 'linear-gradient(90deg,#36d1c4,#5b86e5)', color: '#fff', fontWeight: 700, fontSize: 15, borderRadius: 12, padding: '4px 14px', marginBottom: 8, boxShadow: '0 2px 8px #36d1c422', letterSpacing: 0.5
+        }}>{date}</div>
+        <div style={{ flex: 1, width: 4, background: 'linear-gradient(180deg,#e0e7ef 0%,#b2d8ef 100%)', minHeight: 80, borderRadius: 2 }} />
+      </div>
+      {/* カード本体 */}
+      <div className="progress-card" style={{ flex: 1, marginLeft: 12, background: '#fff', borderRadius: 18, boxShadow: '0 4px 24px #2563eb13', padding: 24, position: 'relative', animation: 'fadeInUp 0.7s', minWidth: 0 }}>
+        {/* 進捗タイプバッジ */}
+        <div style={{ marginBottom: 8 }}>
+          <span style={{
+            display: 'inline-block',
+            background: badge.color,
+            color: '#fff',
+            fontWeight: 700,
+            fontSize: 14,
+            borderRadius: 12,
+            padding: '4px 16px',
+            marginRight: 8,
+            marginBottom: 6,
+            letterSpacing: 0.5,
+            boxShadow: '0 2px 8px #36d1c422',
+          }}>{badge.label}</span>
+        </div>
+        {/* 削除ボタンを右上に絶対配置 */}
         {onDelete && (
           <button
             onClick={handleDeleteProgress}
             disabled={isDeleting}
+            className="progress-card-delete-btn"
+            title="進捗を削除"
             style={{
+              position: 'absolute',
+              top: 12,
+              right: 16,
               background: 'none',
               border: 'none',
-              color: '#ff4d4f',
-              cursor: isDeleting ? 'not-allowed' : 'pointer',
-              fontSize: 14,
-              padding: '2px 8px',
-              borderRadius: 4
+              color: '#bbb',
+              fontSize: 22,
+              cursor: 'pointer',
+              zIndex: 10
             }}
-            title="進捗を削除"
           >
             🗑️
           </button>
         )}
-      </div>
-      
-      {/* Storage画像を表示 */}
-      {images && images.length > 0 && (
-        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-          {images.map((imgPath, idx) => (
-            <img
-              key={idx}
-              src={getImageUrlFromStorage(imgPath)}
-              alt={`進捗画像${idx + 1}`}
-              style={{ maxWidth: 180, maxHeight: 180, borderRadius: 8, border: '1px solid #eee' }}
-            />
-          ))}
-        </div>
-      )}
-      {/* 旧imageUrl（互換） */}
-      {imageUrl && (
-        <div style={{ marginBottom: 12 }}>
-          <img 
-            src={imageUrl} 
-            alt="進捗画像" 
-            style={{ 
-              maxWidth: '100%', 
-              borderRadius: 8,
-              border: '1px solid #eee'
-            }} 
-          />
-        </div>
-      )}
-      
-      <div style={{ 
-        marginBottom: 12,
-        lineHeight: 1.5,
-        fontSize: 16
-      }}>
-        {content}
-      </div>
-      
-      <div style={{ 
-        display: 'flex', 
-        gap: 16,
-        fontSize: 14,
-        color: '#666',
-        marginBottom: 12
-      }}>
-        <ApplauseButton
-          targetType="progress"
-          targetId={id}
-          initialCount={applauseCnt}
-          initialApplauded={applauded}
-          onChange={(a, c) => { setApplauded(a); setApplauseCnt(c); }}
-        />
-        <button
-          onClick={() => setShowComments(!showComments)}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: '#1890ff',
-            cursor: 'pointer',
-            fontSize: 14,
-            padding: 0
-          }}
-        >
-          💬 {comments.length}コメント
-        </button>
-      </div>
-
-      {/* コメントセクション */}
-      {showComments && (
-        <div style={{ 
-          borderTop: '1px solid #eee', 
-          paddingTop: 12,
-          marginTop: 12
-        }}>
-          <h4 style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 12 }}>
-            💬 コメント
-          </h4>
-          
-          {!user ? (
-            <div style={{ 
-              padding: '12px', 
-              background: '#f8f9fa', 
-              borderRadius: 6, 
-              border: '1px solid #e9ecef',
-              textAlign: 'center',
-              color: '#666',
-              fontSize: 14
-            }}>
-              コメントを投稿するには<a href="/auth" style={{ color: '#1890ff', textDecoration: 'underline' }}>ログイン</a>してください
-            </div>
-          ) : (
-            <div style={{ marginBottom: 16 }}>
-              <textarea 
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="応援メッセージを入力してください... (Ctrl+Enterで投稿)"
-                style={{ 
-                  width: '100%', 
-                  minHeight: 60, 
-                  padding: 8, 
-                  border: '1px solid #ddd', 
-                  borderRadius: 4,
-                  resize: 'vertical',
-                  fontSize: 14,
-                  lineHeight: 1.5
-                }}
-                disabled={isSubmitting}
+        {/* 画像ギャラリー */}
+        {images && images.length > 0 && (
+          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 12 }}>
+            {images.map((imgPath, idx) => (
+              <img
+                key={idx}
+                src={getImageUrlFromStorage(imgPath)}
+                alt={`進捗画像${idx + 1}`}
+                style={{ width: 120, height: 80, objectFit: 'cover', borderRadius: 10, boxShadow: '0 2px 8px #2563eb11' }}
               />
-              
-              {error && (
-                <div style={{ 
-                  marginTop: 4, 
-                  padding: '4px 8px', 
-                  background: '#fff2f0', 
-                  border: '1px solid #ffccc7', 
-                  borderRadius: 4,
-                  color: '#cf1322',
-                  fontSize: 12
-                }}>
-                  {error}
-                </div>
-              )}
-              
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                marginTop: 8 
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}>
-                    <input
-                      type="checkbox"
-                      checked={isAnonymous}
-                      onChange={(e) => setIsAnonymous(e.target.checked)}
-                      style={{ margin: 0 }}
-                    />
-                    匿名
-                  </label>
-                  
-                  <span style={{ fontSize: 12, color: '#666' }}>
-                    {newComment.length}/200文字
-                  </span>
-                </div>
-                
-                <button 
-                  onClick={handleSubmitComment}
-                  disabled={!newComment.trim() || isSubmitting}
-                  style={{ 
-                    padding: '4px 8px',
-                    background: newComment.trim() && !isSubmitting ? '#1890ff' : '#d9d9d9',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: 4,
-                    cursor: newComment.trim() && !isSubmitting ? 'pointer' : 'not-allowed',
-                    fontSize: 12
-                  }}
-                >
-                  {isSubmitting ? '投稿中...' : '投稿'}
-                </button>
-              </div>
-            </div>
-          )}
-          
-          <div>
-            {comments.length === 0 ? (
-              <div style={{ 
-                padding: '12px', 
-                textAlign: 'center', 
-                color: '#666',
-                background: '#f8f9fa',
-                borderRadius: 6,
-                border: '1px solid #e9ecef',
-                fontSize: 14
-              }}>
-                まだコメントがありません
+            ))}
+          </div>
+        )}
+        {imageUrl && (
+          <div style={{ marginBottom: 12 }}>
+            <img 
+              src={imageUrl} 
+              alt="進捗画像" 
+              style={{ width: '100%', maxHeight: 180, objectFit: 'cover', borderRadius: 10, boxShadow: '0 2px 8px #2563eb11' }}
+            />
+          </div>
+        )}
+        <div className="progress-card-content" style={{ fontSize: 17, fontWeight: 500, color: '#222', marginBottom: 16, lineHeight: 1.7 }}>
+          {content}
+        </div>
+        <div className="progress-card-actions" style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 4 }}>
+          <ApplauseButton
+            targetType="progress"
+            targetId={id}
+            initialCount={applauseCnt}
+            initialApplauded={applauded}
+            onChange={(a, c) => { setApplauded(a); setApplauseCnt(c); }}
+          />
+          <button
+            onClick={() => setShowComments(!showComments)}
+            className="progress-card-comment-btn"
+            style={{ background: 'none', border: 'none', color: '#888', fontWeight: 600, fontSize: 15, cursor: 'pointer' }}
+          >
+            💬 {comments.length}コメント
+          </button>
+        </div>
+        {/* コメントセクション（省略: 既存のまま） */}
+        {showComments && (
+          <div className="progress-card-comments">
+            <h4 className="progress-card-comments-title">
+              💬 コメント
+            </h4>
+            {!user ? (
+              <div className="progress-card-login-required">
+                コメントを投稿するには<a href="/auth" className="progress-card-login-link">ログイン</a>してください
               </div>
             ) : (
-              comments.map((comment) => (
-                <div key={comment.id} style={{ 
-                  border: '1px solid #eee', 
-                  borderRadius: 6, 
-                  padding: 8, 
-                  marginBottom: 8,
-                  background: '#fafafa'
-                }}>
-                  <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'flex-start',
-                    marginBottom: 4
-                  }}>
-                    <div style={{ fontSize: 12, color: '#666' }}>
-                      <span style={{ fontWeight: 'bold', color: '#1890ff' }}>
-                        {comment.isAnonymous ? '匿名' : `@${comment.author}`}
-                      </span>
-                      <span style={{ marginLeft: 8 }}>
-                        {comment.date}
-                      </span>
-                    </div>
-                    
-                    {comment.canDelete && (
-                      <button
-                        onClick={() => handleDeleteComment(comment.id)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          color: '#ff4d4f',
-                          cursor: 'pointer',
-                          fontSize: 10,
-                          padding: '2px 4px',
-                          borderRadius: 2
-                        }}
-                        title="削除"
-                      >
-                        🗑️
-                      </button>
-                    )}
+              <div className="progress-card-comment-form">
+                <textarea 
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="応援メッセージを入力してください... (Ctrl+Enterで投稿)"
+                  className="progress-card-comment-textarea"
+                  disabled={isSubmitting}
+                />
+                {error && (
+                  <div className="progress-card-comment-error">
+                    {error}
                   </div>
-                  
-                  <div style={{ 
-                    lineHeight: 1.4,
-                    fontSize: 13,
-                    wordBreak: 'break-word'
-                  }}>
-                    {comment.content}
+                )}
+                <div className="progress-card-comment-form-bottom">
+                  <div className="progress-card-comment-form-meta">
+                    <label className="progress-card-anonymous-label">
+                      <input
+                        type="checkbox"
+                        checked={isAnonymous}
+                        onChange={(e) => setIsAnonymous(e.target.checked)}
+                        className="progress-card-anonymous-checkbox"
+                      />
+                      匿名
+                    </label>
+                    <span className="progress-card-comment-length">
+                      {newComment.length}/200文字
+                    </span>
                   </div>
+                  <button 
+                    onClick={handleSubmitComment}
+                    disabled={!newComment.trim() || isSubmitting}
+                    className="progress-card-comment-submit-btn"
+                  >
+                    {isSubmitting ? '投稿中...' : '投稿'}
+                  </button>
                 </div>
-              ))
+              </div>
             )}
+            <div className="progress-card-comment-list">
+              {comments.length === 0 ? (
+                <div className="progress-card-comment-empty">まだコメントがありません</div>
+              ) : (
+                comments.map((comment) => (
+                  <div key={comment.id} className="progress-card-comment-item">
+                    <div className="progress-card-comment-item-header">
+                      <div className="progress-card-comment-author">
+                        <span className="progress-card-comment-author-name">
+                          {comment.isAnonymous ? '匿名' : `@${comment.author}`}
+                        </span>
+                        <span className="progress-card-comment-date">
+                          {comment.date}
+                        </span>
+                      </div>
+                      {comment.canDelete && (
+                        <button
+                          onClick={() => handleDeleteComment(comment.id)}
+                          className="progress-card-comment-delete-btn"
+                          title="削除"
+                        >
+                          🗑️
+                        </button>
+                      )}
+                    </div>
+                    <div className="progress-card-comment-content">
+                      {comment.content}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

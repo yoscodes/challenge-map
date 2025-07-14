@@ -9,7 +9,7 @@ type ContentInputProps = {
 
 const ContentInput = ({ content, onContentChange }: ContentInputProps) => (
   <section style={{ marginBottom: 32 }}>
-    <h2 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>
+    <h2 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16, color: '#222' }}>
       ✏️ 進捗内容（テキストエリア）
     </h2>
     <div style={{ marginBottom: 8 }}>

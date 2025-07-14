@@ -19,12 +19,14 @@ type SupporterListProps = {
 const SupporterList = ({ supporters }: SupporterListProps) => {
   if (supporters.length === 0) {
     return (
-      <div style={{ 
+      <div className="card fade-in" style={{ 
         textAlign: 'center', 
         padding: '40px 20px', 
         color: '#666',
-        background: '#fafafa',
-        borderRadius: 12
+        background: '#f8fafc',
+        borderRadius: 16,
+        boxShadow: '0 2px 12px #2563eb11',
+        marginBottom: 24
       }}>
         まだサポーターがいません
       </div>
@@ -32,17 +34,18 @@ const SupporterList = ({ supporters }: SupporterListProps) => {
   }
 
   return (
-    <div>
+    <div className="card fade-in" style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px #2563eb11', padding: '24px 18px', marginBottom: 24 }}>
       {supporters.map((supporter) => (
         <div key={supporter.id} style={{ 
-          background: '#fff', 
+          background: 'linear-gradient(90deg,#f8fafc,#e0e7ef)', 
           borderRadius: 12, 
-          padding: 20, 
+          padding: 18, 
           marginBottom: 16,
-          border: '1px solid #eee',
+          boxShadow: '0 2px 8px #2563eb11',
           display: 'flex',
-          gap: 16,
-          alignItems: 'center'
+          gap: 18,
+          alignItems: 'center',
+          transition: 'box-shadow 0.2s',
         }}>
           {/* プロフィール画像 */}
           <img
@@ -53,60 +56,57 @@ const SupporterList = ({ supporters }: SupporterListProps) => {
               height: 60,
               borderRadius: '50%',
               objectFit: 'cover',
-              flexShrink: 0
+              flexShrink: 0,
+              boxShadow: '0 2px 8px #2563eb22'
             }}
             onError={(e) => { e.currentTarget.src = getPlaceholderImage(PLACEHOLDER_TYPES.AVATAR_SMALL); }}
           />
-          
           {/* サポーター情報 */}
           <div style={{ flex: 1 }}>
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              gap: 8, 
+              gap: 10, 
               marginBottom: 4 
             }}>
-              <span style={{ fontSize: 16, fontWeight: 'bold' }}>
+              <span style={{ fontSize: 17, fontWeight: 'bold', color: '#2563eb' }}>
                 @{supporter.username}
               </span>
               <span style={{ 
-                padding: '4px 8px', 
-                background: supporter.type === "monthly" ? '#ff6b6b' : '#52c41a', 
+                padding: '4px 12px', 
+                background: supporter.type === "monthly" ? 'linear-gradient(90deg,#ff6b6b,#fbbf24)' : 'linear-gradient(90deg,#52c41a,#a7f3d0)', 
                 color: '#fff', 
                 borderRadius: 12,
-                fontSize: 12,
-                fontWeight: 'bold'
+                fontSize: 13,
+                fontWeight: 'bold',
+                boxShadow: '0 1px 4px #2563eb11'
               }}>
                 {supporter.type === "monthly" ? "月額" : "単発"}
               </span>
             </div>
-            
-            <div style={{ fontSize: 16, fontWeight: 'bold', color: '#1890ff', marginBottom: 4 }}>
+            <div style={{ fontSize: 17, fontWeight: 'bold', color: '#222', marginBottom: 4 }}>
               ¥{supporter.amount.toLocaleString()}
               {supporter.type === "monthly" && "/月"}
             </div>
-            
             {supporter.comment && (
-              <div style={{ 
-                fontSize: 14, 
-                color: '#666',
-                fontStyle: 'italic'
-              }}>
+              <div style={{ fontSize: 14, color: '#2563eb', fontStyle: 'italic' }}>
                 💬 "{supporter.comment}"
               </div>
             )}
           </div>
-          
           {/* アクションボタン */}
           <div>
             <button style={{ 
-              padding: '8px 16px', 
-              background: '#52c41a', 
+              padding: '10px 22px', 
+              background: 'linear-gradient(90deg,#2563eb,#60a5fa)', 
               color: '#fff', 
               border: 'none', 
-              borderRadius: 6,
-              fontSize: 14,
-              cursor: 'pointer'
+              borderRadius: 10,
+              fontSize: 15,
+              fontWeight: 700,
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px #2563eb22',
+              transition: 'all 0.2s'
             }}>
               お礼を送る
             </button>

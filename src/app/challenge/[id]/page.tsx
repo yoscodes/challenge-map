@@ -42,6 +42,10 @@ export default function ChallengeDetailPage() {
 
       setChallenge(challengeData);
 
+      // デバッグ: cover_imageの値を確認
+      console.log('チャレンジデータ:', challengeData);
+      console.log('cover_image:', challengeData?.cover_image);
+
       // 進捗更新を取得
       const { data: progressData, error: progressError } = await progressUpdates.getByChallengeId(challengeId);
       
@@ -90,6 +94,9 @@ export default function ChallengeDetailPage() {
     }
   };
 
+  // オーナー判定
+  const isOwner = user?.id === challenge?.user_id;
+
   if (loading || isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -122,6 +129,12 @@ export default function ChallengeDetailPage() {
   }
 
   // データをコンポーネント用の形式に変換
+  const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, '');
+  const coverImageUrl = challenge.cover_image
+    ? challenge.cover_image.startsWith('http')
+      ? challenge.cover_image
+      : `${SUPABASE_URL}/storage/v1/object/public/avatars/${challenge.cover_image}`
+    : undefined;
   const challengeData = {
     title: challenge.title,
     author: challenge.users?.username || 'Unknown',
@@ -130,16 +143,24 @@ export default function ChallengeDetailPage() {
     targetDate: challenge.goal_date ? new Date(challenge.goal_date).toLocaleDateString('ja-JP') : '未設定',
     location: challenge.location?.address || '未設定',
     description: challenge.description,
+    coverImageUrl,
+    challengeId: String(challenge.id),
   };
 
-  const progressData = progresses.map(progress => ({
-    id: progress.id,
-    date: new Date(progress.created_at).toLocaleDateString('ja-JP'),
-    content: progress.content,
-    imageUrl: progress.images?.[0] || undefined,
-    applauseCount: 0, // TODO: 拍手機能の実装
-    commentCount: 0, // TODO: コメント数カウント
-  }));
+  const progressData = progresses.map(progress => {
+    const dateStr = progress.date ? String(progress.date) : undefined;
+    return {
+      id: String(progress.id),
+      date: dateStr
+        ? new Date(dateStr as string).toLocaleDateString('ja-JP')
+        : new Date(progress.created_at as string).toLocaleDateString('ja-JP'),
+      content: progress.content,
+      imageUrl: progress.images?.[0] || undefined,
+      applauseCount: 0, // TODO: 拍手機能の実装
+      commentCount: 0, // TODO: コメント数カウント
+      progressType: progress.progress_type ? String(progress.progress_type) : undefined,
+    };
+  });
 
   const commentData = commentsList.map(comment => ({
     id: comment.id,
@@ -151,39 +172,20 @@ export default function ChallengeDetailPage() {
   }));
 
   return (
-    <div>
-      {/* 投稿者のみ編集・削除ボタン表示 */}
-      {user?.id === challenge.user_id && (
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-          <button
-            onClick={() => router.push(`/challenge/${challenge.id}/edit`)}
-            style={{ padding: '6px 16px', borderRadius: 6, background: '#1890ff', color: '#fff', border: 'none', cursor: 'pointer' }}
-          >編集</button>
-          <button
-            onClick={handleDeleteChallenge}
-            style={{ padding: '6px 16px', borderRadius: 6, background: '#fff', color: '#ff4d4f', border: '1px solid #ff4d4f', cursor: 'pointer' }}
-          >削除</button>
-        </div>
-      )}
-      {/* チャレンジの舞台を地図で表示 */}
-      {challenge.location && challenge.location.lat && challenge.location.lng && (
-        <div style={{ marginBottom: 24 }}>
-          <MapView
-            lat={challenge.location.lat}
-            lng={challenge.location.lng}
-            zoom={10}
-            showMarker={true}
-          />
-          <div style={{ marginTop: 8, color: "#666" }}>
-            {challenge.location.address}
-          </div>
-        </div>
-      )}
+    <div style={{
+      minHeight: '100vh',
+      background: '#fafcff',
+      padding: '0',
+    }}>
       <ChallengeDetailLayout 
-        challenge={{ ...challengeData, challengeId }}
+        challenge={challengeData}
         progresses={progressData}
         comments={commentData}
         onCommentAdded={handleCommentAdded}
+        onEdit={() => router.push(`/challenge/${challenge.id}/edit`)}
+        onDelete={handleDeleteChallenge}
+        onBack={() => router.back()}
+        isOwner={isOwner}
       />
     </div>
   );

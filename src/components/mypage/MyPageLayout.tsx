@@ -128,13 +128,14 @@ const MyPageLayout = () => {
               borderRadius: 4,
               background: '#fff',
               cursor: 'pointer',
-              fontSize: 18
+              fontSize: 18,
+              color: "#222"
             }}
             onClick={() => router.back()}
           >
             ← 戻る
           </button>
-          <h1 style={{ fontSize: 24, fontWeight: 'bold', margin: 0 }}>
+          <h1 style={{ fontSize: 24, fontWeight: 'bold', margin: 0, color: "#222"}}>
             マイページ
           </h1>
         </div>
@@ -150,6 +151,11 @@ const MyPageLayout = () => {
           onAvatarChange={async (url) => {
             await users.update(user.id, { avatar_url: url });
             // プロフィール再取得
+            const { data } = await users.getById(user.id);
+            setProfile(data);
+          }}
+          onUsernameChange={async (newUsername) => {
+            await users.update(user.id, { username: newUsername });
             const { data } = await users.getById(user.id);
             setProfile(data);
           }}

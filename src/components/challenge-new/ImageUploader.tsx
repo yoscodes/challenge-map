@@ -25,11 +25,11 @@ const ImageUploader = ({ onImageChange }: ImageUploaderProps) => {
   };
 
   return (
-    <section style={{ marginBottom: 32 }}>
-      <h2 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>
-        📷 カバー画像アップロード（任意）
+    <section className="image-section">
+      <h2 className="image-title">
+        <span className="image-badge">📷 カバー画像アップロード（任意）</span>
       </h2>
-      <div style={{ marginBottom: 8 }}>
+      <div className="image-upload-wrap">
         <input
           type="file"
           accept="image/*"
@@ -39,37 +39,20 @@ const ImageUploader = ({ onImageChange }: ImageUploaderProps) => {
         />
         <label
           htmlFor="image-upload"
-          style={{
-            display: 'inline-block',
-            padding: '12px 24px',
-            background: '#1890ff',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 8,
-            cursor: 'pointer',
-            fontSize: 16
-          }}
+          className="image-upload-label"
         >
           ファイルを選ぶ
         </label>
       </div>
-      
       {previewUrl && (
-        <div style={{ marginTop: 16 }}>
+        <div className="image-preview">
           <img
             src={previewUrl}
             alt="プレビュー"
-            style={{
-              maxWidth: '100%',
-              maxHeight: 200,
-              borderRadius: 8,
-              border: '1px solid #ddd'
-            }}
           />
         </div>
       )}
-      
-      <div style={{ fontSize: 14, color: '#666', marginTop: 8 }}>
+      <div className="image-hint">
         ※ Supabase Storageに保存されます
       </div>
     </section>

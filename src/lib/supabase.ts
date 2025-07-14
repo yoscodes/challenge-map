@@ -47,6 +47,7 @@ export interface Challenge {
   status: 'planning' | 'in_progress' | 'completed' | 'paused';
   created_at: string;
   updated_at: string;
+  cover_image?: string; // 追加
   users?: {
     username: string;
     avatar_url?: string;
@@ -55,7 +56,7 @@ export interface Challenge {
 }
 
 export interface ProgressUpdate {
-  id: string;
+  id?: string;
   challenge_id: string;
   user_id: string;
   content: string;
@@ -65,11 +66,9 @@ export interface ProgressUpdate {
     lng: number;
     address: string;
   };
-  created_at: string;
-  users?: {
-    username: string;
-    avatar_url?: string;
-  };
+  created_at?: string;
+  progress_type?: string; // 追加
+  date?: string; // 追加
 }
 
 export interface Comment {

@@ -16,9 +16,24 @@ const CTAButton = () => {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', margin: '32px 0' }}>
+    <div
+      style={{ display: "flex", justifyContent: "center", margin: "40px 0" }}
+    >
       <button
-        style={{ fontSize: 20, padding: '16px 48px', borderRadius: 32, background: '#1890ff', color: '#fff', border: 'none', fontWeight: 'bold', boxShadow: '0 2px 8px rgba(24,144,255,0.15)' }}
+        className="cta-button fade-in"
+        style={{
+          fontSize: 22,
+          padding: "18px 56px",
+          borderRadius: 40,
+          fontWeight: 700,
+          background: "linear-gradient(90deg,#2563eb,#60a5fa)",
+          color: "#fff",
+          border: "none",
+          boxShadow: "0 4px 24px rgba(37,99,235,0.15)",
+          letterSpacing: "0.04em",
+          transition: "all 0.2s",
+          cursor: "pointer",
+        }}
         onClick={handleClick}
         disabled={loading}
       >
@@ -28,4 +43,4 @@ const CTAButton = () => {
   );
 };
 
-export default CTAButton; 
+export default CTAButton;
