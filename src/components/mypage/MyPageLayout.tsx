@@ -11,6 +11,7 @@ import EditLinks from "./EditLinks";
 import { useAuth } from "@/contexts/AuthContext";
 import { users, challenges as challengesApi, progressUpdates, supporters as supportersApi } from "@/lib/database";
 import { getPlaceholderImage, PLACEHOLDER_TYPES } from "@/lib/placeholder-images";
+import { isMobile } from "@/lib/mobile-utils";
 
 type Tab = "active" | "completed" | "supporters";
 
@@ -116,29 +117,43 @@ const MyPageLayout = () => {
     }
   };
 
+  const isMobileView = isMobile();
+
   return (
-    <div style={{ background: '#fafcff', minHeight: '100vh' }}>
-      <main style={{ maxWidth: 1000, margin: '0 auto', padding: '24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
+    <div style={{ background: '#fafcff', minHeight: '100vh', position: 'relative' }}>
+      {/* 戻るボタン（左上） */}
+      {!isMobileView && (
+        <div style={{
+          position: 'absolute',
+          top: 24,
+          left: 32,
+          zIndex: 10
+        }}>
           <button
+            onClick={() => router.push('/')}
             style={{
-              marginRight: 16,
-              padding: '8px 12px',
-              border: '1px solid #ddd',
-              borderRadius: 4,
-              background: '#fff',
+              padding: '4px 10px',
+              borderRadius: 6,
+              background: 'none',
+              color: '#888',
+              border: 'none',
+              fontWeight: 500,
+              fontSize: 14,
+              boxShadow: 'none',
               cursor: 'pointer',
-              fontSize: 18,
-              color: "#222"
+              textDecoration: 'underline',
+              opacity: 0.7,
+              transition: 'opacity 0.2s',
             }}
-            onClick={() => router.back()}
-          >
-            ← 戻る
-          </button>
-          <h1 style={{ fontSize: 24, fontWeight: 'bold', margin: 0, color: "#222"}}>
-            マイページ
-          </h1>
+            onMouseOver={(e: React.MouseEvent<HTMLButtonElement>) => (e.currentTarget.style.opacity = '1')}
+            onMouseOut={(e: React.MouseEvent<HTMLButtonElement>) => (e.currentTarget.style.opacity = '0.7')}
+          >← 戻る</button>
         </div>
+      )}
+      <main style={{ maxWidth: 1000, margin: '0 auto', padding: '24px' }}>
+        <h1 style={{ fontSize: 24, fontWeight: 'bold', margin: 0, color: "#222"}}>
+          マイページ
+        </h1>
         <ProfileHeader
           username={profile.username ? `@${profile.username}` : 'ユーザー'}
           profileImage={profile.avatar_url || getPlaceholderImage(PLACEHOLDER_TYPES.USER)}

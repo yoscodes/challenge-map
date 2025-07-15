@@ -135,6 +135,35 @@ const MapExplore = () => {
         width: '100%',
       }}
     >
+      {/* 戻るボタン（左上） */}
+      {!isMobileView && (
+        <div style={{
+          position: 'absolute',
+          top: 24,
+          left: 32,
+          zIndex: 10
+        }}>
+          <button
+            onClick={() => router.push('/')}
+            style={{
+              padding: '4px 10px',
+              borderRadius: 6,
+              background: 'none',
+              color: '#888',
+              border: 'none',
+              fontWeight: 500,
+              fontSize: 14,
+              boxShadow: 'none',
+              cursor: 'pointer',
+              textDecoration: 'underline',
+              opacity: 0.7,
+              transition: 'opacity 0.2s',
+            }}
+            onMouseOver={(e: React.MouseEvent<HTMLButtonElement>) => (e.currentTarget.style.opacity = '1')}
+            onMouseOut={(e: React.MouseEvent<HTMLButtonElement>) => (e.currentTarget.style.opacity = '0.7')}
+          >← 戻る</button>
+        </div>
+      )}
       {/* Heroセクション */}
       <div
         style={{

@@ -144,67 +144,89 @@ const ChallengeDetailLayout = ({ challenge, progresses, comments, onCommentAdded
       // marginBottom: 28,
       zIndex: 2
     }}>
-      {/* フローティングボタン群 */}
-      <div style={{
-        position: 'absolute',
-        top: 24,
-        right: 32,
-        zIndex: 10,
-        display: 'flex',
-        gap: 10
-      }}>
-        {onBack && (
+      {/* 戻るボタン（左上） */}
+      {onBack && (
+        <div style={{
+          position: 'absolute',
+          top: 24,
+          left: 32,
+          zIndex: 10
+        }}>
           <button
             onClick={onBack}
             style={{
-              padding: '7px 18px',
-              borderRadius: 8,
-              background: 'rgba(255,255,255,0.92)',
-              color: '#333',
-              border: '1px solid #ddd',
-              fontWeight: 700,
-              fontSize: 15,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
-              cursor: 'pointer',
-              transition: 'background 0.2s',
-            }}
-          >← 戻る</button>
-        )}
-        {isOwner && onEdit && (
-          <button
-            onClick={onEdit}
-            style={{
-              padding: '7px 18px',
-              borderRadius: 8,
-              background: '#1890ff',
-              color: '#fff',
+              padding: '4px 10px',
+              borderRadius: 6,
+              background: 'none',
+              color: '#888',
               border: 'none',
-              fontWeight: 700,
-              fontSize: 15,
-              boxShadow: '0 2px 8px rgba(24,144,255,0.13)',
+              fontWeight: 500,
+              fontSize: 14,
+              boxShadow: 'none',
               cursor: 'pointer',
-              transition: 'background 0.2s',
+              textDecoration: 'underline',
+              opacity: 0.7,
+              transition: 'opacity 0.2s',
             }}
-          >編集</button>
-        )}
-        {isOwner && onDelete && (
-          <button
-            onClick={onDelete}
-            style={{
-              padding: '7px 18px',
-              borderRadius: 8,
-              background: '#fff',
-              color: '#ff4d4f',
-              border: '1px solid #ff4d4f',
-              fontWeight: 700,
-              fontSize: 15,
-              boxShadow: '0 2px 8px rgba(255,77,79,0.10)',
-              cursor: 'pointer',
-              transition: 'background 0.2s',
-            }}
-          >削除</button>
-        )}
-      </div>
+            onMouseOver={(e: React.MouseEvent<HTMLButtonElement>) => (e.currentTarget.style.opacity = '1')}
+            onMouseOut={(e: React.MouseEvent<HTMLButtonElement>) => (e.currentTarget.style.opacity = '0.7')}
+          >← 戻る</button>
+        </div>
+      )}
+      {/* 編集・削除ボタン（右上） */}
+      {(isOwner && (onEdit || onDelete)) && (
+        <div style={{
+          position: 'absolute',
+          top: 24,
+          right: 32,
+          zIndex: 10,
+          display: 'flex',
+          gap: 10
+        }}>
+          {isOwner && onEdit && (
+            <button
+              onClick={onEdit}
+              style={{
+                padding: '4px 10px',
+                borderRadius: 6,
+                background: 'none',
+                color: '#888',
+                border: 'none',
+                fontWeight: 500,
+                fontSize: 14,
+                boxShadow: 'none',
+                cursor: 'pointer',
+                textDecoration: 'underline',
+                opacity: 0.7,
+                transition: 'opacity 0.2s',
+              }}
+              onMouseOver={(e: React.MouseEvent<HTMLButtonElement>) => (e.currentTarget.style.opacity = '1')}
+              onMouseOut={(e: React.MouseEvent<HTMLButtonElement>) => (e.currentTarget.style.opacity = '0.7')}
+            >編集</button>
+          )}
+          {isOwner && onDelete && (
+            <button
+              onClick={onDelete}
+              style={{
+                padding: '4px 10px',
+                borderRadius: 6,
+                background: 'none',
+                color: '#c00',
+                border: 'none',
+                fontWeight: 500,
+                fontSize: 14,
+                boxShadow: 'none',
+                cursor: 'pointer',
+                textDecoration: 'underline',
+                opacity: 0.7,
+                transition: 'opacity 0.2s',
+              }}
+              onMouseOver={(e: React.MouseEvent<HTMLButtonElement>) => (e.currentTarget.style.opacity = '1')}
+              onMouseOut={(e: React.MouseEvent<HTMLButtonElement>) => (e.currentTarget.style.opacity = '0.7')}
+            >削除</button>
+          )}
+        </div>
+      )}
       {/* カバー画像 or グラデ背景 */}
       {challenge.coverImageUrl ? (
         <img
