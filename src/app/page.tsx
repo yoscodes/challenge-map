@@ -5,7 +5,6 @@ import { challenges } from '@/lib/database';
 import type { Challenge } from '@/lib/supabase';
 import Header from "../components/top/Header";
 import HeroMessage from "../components/top/HeroMessage";
-import SearchBar from "../components/top/SearchBar";
 import MainLayout from "../components/top/MainLayout";
 import ChallengeList from "../components/top/ChallengeList";
 import CTAButton from "../components/top/CTAButton";
@@ -53,7 +52,6 @@ export default function HomePage() {
         }}
       >
         <HeroMessage />
-        <SearchBar />
         <MainLayout challenges={challengeList} />
         <ChallengeList 
           challenges={challengeList}
