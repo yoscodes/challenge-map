@@ -28,7 +28,6 @@ const CommentSection = ({ comments: initialComments, challengeId, onCommentAdded
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [reportTargetId, setReportTargetId] = useState<string|null>(null);
 
   const handleSubmit = async () => {
     if (!newComment.trim() || !user || !challengeId) return;
@@ -122,6 +121,7 @@ const CommentSection = ({ comments: initialComments, challengeId, onCommentAdded
     boxShadow: '0 1px 4px #b6c2d933',
     resize: 'vertical' as const,
     transition: 'border 0.2s',
+    color: '#222', // 文字色を濃く
   };
   const commentItemStyle = {
     background: '#fff',
@@ -130,6 +130,27 @@ const CommentSection = ({ comments: initialComments, challengeId, onCommentAdded
     padding: '14px 16px',
     marginBottom: 14,
     boxShadow: '0 1px 6px #b6c2d922',
+    position: 'relative' as const, // 通報ボタン配置用
+  };
+  const deleteBtnStyle = {
+    background: 'none',
+    color: '#bbb',
+    border: 'none',
+    borderRadius: '50%',
+    fontSize: 18,
+    cursor: 'pointer',
+    position: 'absolute' as const,
+    top: '50%',
+    right: 10,
+    transform: 'translateY(-50%)',
+    zIndex: 2,
+    padding: 0,
+    width: 32,
+    height: 32,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'color 0.18s',
   };
 
   return (
@@ -155,27 +176,30 @@ const CommentSection = ({ comments: initialComments, challengeId, onCommentAdded
             </div>
           )}
           <div className="comment-section-form-bottom">
-            <div className="comment-section-form-meta">
-              <label className="comment-section-anonymous-label">
-                <input
-                  type="checkbox"
-                  checked={isAnonymous}
-                  onChange={(e) => setIsAnonymous(e.target.checked)}
-                  className="comment-section-anonymous-checkbox"
-                />
-                匿名で投稿
-              </label>
-              <span className="comment-section-length">
-                {newComment.length}/500文字
-              </span>
+            <div className="comment-section-form-meta" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <label className="comment-section-anonymous-label">
+                  <input
+                    type="checkbox"
+                    checked={isAnonymous}
+                    onChange={(e) => setIsAnonymous(e.target.checked)}
+                    className="comment-section-anonymous-checkbox"
+                  />
+                  匿名で投稿
+                </label>
+                <span className="comment-section-length">
+                  {newComment.length}/500文字
+                </span>
+              </div>
+              <button 
+                onClick={handleSubmit}
+                disabled={!newComment.trim() || isSubmitting}
+                className="comment-section-submit-btn"
+                style={{ marginLeft: 16, minWidth: 110 }}
+              >
+                {isSubmitting ? '投稿中...' : 'コメント投稿'}
+              </button>
             </div>
-            <button 
-              onClick={handleSubmit}
-              disabled={!newComment.trim() || isSubmitting}
-              className="comment-section-submit-btn"
-            >
-              {isSubmitting ? '投稿中...' : 'コメント投稿'}
-            </button>
           </div>
         </div>
       )}
@@ -194,22 +218,17 @@ const CommentSection = ({ comments: initialComments, challengeId, onCommentAdded
                     {comment.date}
                   </span>
                 </div>
-                <div className="comment-section-item-actions">
+                <div className="comment-section-item-actions" style={{position: 'relative'}}>
                   {comment.canDelete && (
                     <button
                       onClick={() => handleDelete(comment.id)}
                       className="comment-section-delete-btn"
                       title="削除"
+                      style={deleteBtnStyle}
                     >
-                      🗑️
+                      ✕
                     </button>
                   )}
-                  <button
-                    onClick={() => setReportTargetId(comment.id)}
-                    className="comment-section-report-btn"
-                  >
-                    通報
-                  </button>
                 </div>
               </div>
               <div className="comment-section-content">
@@ -219,12 +238,6 @@ const CommentSection = ({ comments: initialComments, challengeId, onCommentAdded
           ))
         )}
       </div>
-      <ReportModal
-        open={!!reportTargetId}
-        onClose={() => setReportTargetId(null)}
-        targetType="comment"
-        targetId={reportTargetId || ''}
-      />
     </section>
   );
 };

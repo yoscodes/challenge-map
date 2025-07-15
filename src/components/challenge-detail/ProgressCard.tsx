@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { comments as commentsAPI } from "@/lib/database";
 import { getImageUrlFromStorage } from "@/lib/storage";
 import type { ProgressComment } from "@/lib/supabase";
-import ApplauseButton from "@/components/common/ApplauseButton";
+import LikeButton from "@/components/common/LikeButton";
 import { getApplauseCount, isApplaudedByUser } from "@/lib/applause";
 import { progressUpdates } from '@/lib/database';
 
@@ -267,11 +267,11 @@ const ProgressCard = ({ id, date, content, imageUrl, images, applauseCount, comm
           {content}
         </div>
         <div className="progress-card-actions" style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 4 }}>
-          <ApplauseButton
+          <LikeButton
             targetType="progress"
             targetId={id}
             initialCount={applauseCnt}
-            initialApplauded={applauded}
+            initialLiked={applauded}
             onChange={(a, c) => { setApplauded(a); setApplauseCnt(c); }}
           />
           <button

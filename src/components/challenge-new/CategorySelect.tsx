@@ -21,9 +21,9 @@ type CategorySelectProps = {
 const CategorySelect = ({ selectedCategories, onCategoryChange }: CategorySelectProps) => {
   const handleCategoryClick = (categoryId: string) => {
     if (selectedCategories.includes(categoryId)) {
-      onCategoryChange(selectedCategories.filter(id => id !== categoryId));
+      onCategoryChange([]); // クリックで選択解除
     } else {
-      onCategoryChange([...selectedCategories, categoryId]);
+      onCategoryChange([categoryId]); // 1つだけ選択
     }
   };
 

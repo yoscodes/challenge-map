@@ -94,8 +94,33 @@ export default function ChallengeDetailPage() {
     }
   };
 
+  // チャレンジ完了ハンドラ
+  const handleCompleteChallenge = async () => {
+    if (!challenge) return;
+    const ok = window.confirm('このチャレンジを完了済みにしますか？');
+    if (!ok) return;
+    try {
+      await challenges.update(challenge.id, { status: 'completed' });
+      fetchChallengeData();
+    } catch (err) {
+      alert('完了に失敗しました');
+    }
+  };
+
   // オーナー判定
   const isOwner = user?.id === challenge?.user_id;
+
+  // カテゴリID→日本語名変換辞書
+  const categoryMap: Record<string, string> = {
+    travel: '旅',
+    learning: '学習',
+    health: '健康',
+    career: 'キャリア',
+    creative: '創作',
+    social: '社会貢献',
+    finance: 'お金',
+    other: 'その他',
+  };
 
   if (loading || isLoading) {
     return (
@@ -138,13 +163,14 @@ export default function ChallengeDetailPage() {
   const challengeData = {
     title: challenge.title,
     author: challenge.users?.username || 'Unknown',
-    category: challenge.category,
+    category: categoryMap[challenge.category] || challenge.category,
     startDate: new Date(challenge.created_at).toLocaleDateString('ja-JP'),
     targetDate: challenge.goal_date ? new Date(challenge.goal_date).toLocaleDateString('ja-JP') : '未設定',
     location: challenge.location?.address || '未設定',
     description: challenge.description,
     coverImageUrl,
     challengeId: String(challenge.id),
+    status: challenge.status, // 追加
   };
 
   const progressData = progresses.map(progress => {
@@ -186,6 +212,7 @@ export default function ChallengeDetailPage() {
         onDelete={handleDeleteChallenge}
         onBack={() => router.back()}
         isOwner={isOwner}
+        onComplete={handleCompleteChallenge}
       />
     </div>
   );

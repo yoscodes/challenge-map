@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import ApplauseButton from "@/components/common/ApplauseButton";
 import { getApplauseCount, isApplaudedByUser } from "@/lib/applause";
 import { useAuth } from "@/contexts/AuthContext";
 import ReportModal from "@/components/common/ReportModal";
@@ -183,25 +182,8 @@ const ChallengeCard = ({
           </div>
         </div>
         {/* アクション */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-end",
-            gap: 8,
-            minWidth: 90,
-          }}
-        >
-          <ApplauseButton
-            targetType="challenge"
-            targetId={id}
-            initialCount={applauseCnt}
-            initialApplauded={applauded}
-            onChange={(a, c) => {
-              setApplauded(a);
-              setApplauseCnt(c);
-            }}
-          />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8, minWidth: 90 }}>
+          <span style={{ fontSize: 15, color: '#888', fontWeight: 600 }}>👏 {applauseCnt}</span>
           <button
             onClick={(e) => {
               e.preventDefault();
@@ -211,7 +193,6 @@ const ChallengeCard = ({
               background:  "rgb(255, 77, 79)",
               color: "#fff",
               border: "none",
-              // borderRadius: 13,
               padding: "4px 14px",
               fontSize: 13,
               cursor: "pointer",

@@ -20,7 +20,8 @@ type ChallengeCardListProps = {
 };
 
 const ChallengeCardList = ({ challenges, type }: ChallengeCardListProps) => {
-  const filteredChallenges = challenges.filter(challenge => challenge.status === type);
+  // 挑戦中タブでは全てのチャレンジを表示
+  const filteredChallenges = type === 'active' ? challenges : challenges.filter(challenge => challenge.status === type);
   
   if (filteredChallenges.length === 0) {
     return (
