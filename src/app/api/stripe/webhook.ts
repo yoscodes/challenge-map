@@ -29,6 +29,7 @@ export async function POST(req: NextRequest) {
     const plan_type = metadata.planType || '';
     const supporter_id = metadata.supporter_id || null;
     const supported_user_id = metadata.supported_user_id || null;
+    const message = metadata.message || '';
     const stripe_subscription_id = session.subscription || null;
 
     // DB保存
@@ -38,6 +39,7 @@ export async function POST(req: NextRequest) {
         supported_user_id,
         amount,
         plan_type,
+        message,
         stripe_subscription_id,
       }
     ]);
@@ -45,6 +47,7 @@ export async function POST(req: NextRequest) {
       console.error('Supabase insert error:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
+    
     // 通知追加
     if (supporter_id && supported_user_id && supporter_id !== supported_user_id) {
       const { data: user } = await supabase

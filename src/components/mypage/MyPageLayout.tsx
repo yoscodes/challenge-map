@@ -174,6 +174,11 @@ const MyPageLayout = () => {
             const { data } = await users.getById(user.id);
             setProfile(data);
           }}
+          onBioChange={async (newBio) => {
+            await users.update(user.id, { bio: newBio });
+            const { data } = await users.getById(user.id);
+            setProfile(data);
+          }}
         />
         <UserStats {...statsData} />
         <TabSwitcher activeTab={activeTab} onTabChange={setActiveTab} />

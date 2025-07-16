@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import SupportPageHeader from "./SupportPageHeader";
 import UserMiniProfile from "./UserMiniProfile";
 import SupporterVoices from "./SupporterVoices";
@@ -10,8 +10,6 @@ import StripePayButton from "./StripePayButton";
 import SecurityNotice from "./SecurityNotice";
 import { useAuth } from '@/contexts/AuthContext';
 import SupporterList from "./SupporterList";
-import { useEffect } from "react";
-import { createClient } from '@supabase/supabase-js';
 
 type PlanType = "monthly" | "oneTime";
 
@@ -22,9 +20,36 @@ type Supporter = {
   type: "monthly" | "oneTime";
   comment?: string;
   profileImage?: string;
+  supported_at?: string;
 };
 
-const SupportLayout = () => {
+type UserData = {
+  id: string;
+  username: string;
+  avatar_url?: string;
+  bio?: string;
+  location?: string;
+  website?: string;
+  twitter?: string;
+  instagram?: string;
+  created_at: string;
+};
+
+type StatsData = {
+  supporterCount: number;
+  totalAmount: number;
+  monthlyAmount: number;
+  activeChallenges: number;
+  completedChallenges: number;
+  totalApplauseCount: number;
+};
+
+interface SupportLayoutProps {
+  username: string;
+  challengeId?: string;
+}
+
+const SupportLayout = ({ username, challengeId }: SupportLayoutProps) => {
   const { user } = useAuth();
   const [selectedPlan, setSelectedPlan] = useState<{ type: PlanType; amount: number }>({
     type: "monthly",
@@ -33,57 +58,55 @@ const SupportLayout = () => {
   const [message, setMessage] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [supporters, setSupporters] = useState<Supporter[]>([]);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [statsData, setStatsData] = useState<StatsData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-    const fetchSupporters = async () => {
-      // supported_user_idはuserData.usernameで仮実装。実際はIDで管理する場合は修正。
-      const { data, error } = await supabase
-        .from('supporters')
-        .select('*')
-        .eq('supported_user_id', userData.username);
-      if (!error && data) {
-        // 必要に応じてユーザー名や画像を取得・マッピング
-        setSupporters(data.map((s: any) => ({
-          id: s.id,
-          username: s.supporter_id, // 本来はユーザー名取得推奨
-          amount: s.amount,
-          type: s.plan_type,
-          comment: '', // メッセージカラムがあればここに
-          profileImage: '' // 必要に応じて
-        })));
+    const fetchSupportData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch(`/api/support/${username}`);
+        
+        if (!response.ok) {
+          if (response.status === 404) {
+            setError('ユーザーが見つかりません');
+          } else {
+            setError('データの取得に失敗しました');
+          }
+          return;
+        }
+
+        const data = await response.json();
+        
+        if (data.success) {
+          setUserData(data.user);
+          setStatsData(data.stats);
+          setSupporters(data.supporters.map((s: any) => ({
+            id: s.support_id,
+            username: s.username,
+            amount: s.amount,
+            type: s.plan_type === 'monthly' ? 'monthly' : 'oneTime',
+            comment: s.message,
+            profileImage: s.avatar_url,
+            supported_at: s.supported_at
+          })));
+        } else {
+          setError(data.error || 'データの取得に失敗しました');
+        }
+      } catch (error) {
+        console.error('サポートデータ取得エラー:', error);
+        setError('ネットワークエラーが発生しました');
+      } finally {
+        setIsLoading(false);
       }
     };
-    fetchSupporters();
-  }, []);
 
-  // ダミーデータ
-  const userData = {
-    username: "@ai_traveler",
-    profileImage: "https://via.placeholder.com/80x80/87CEEB/FFFFFF?text=👤",
-    bio: "世界一周旅行を目指す冒険者です。異文化体験を通じて自分自身の視野を広げたいと思っています。現在は台湾で語学学習中です。",
-    supporterCount: 12,
-    applauseCount: 130,
-    activeChallenges: ["世界一周", "朝5時起き習慣"]
-  };
-
-  const supporterVoices = [
-    {
-      id: "1",
-      username: "ken_123",
-      message: "応援してます！",
-      date: "2025/07/08"
-    },
-    {
-      id: "2",
-      username: "miki_77",
-      message: "毎日読んでます。元気もらってます！",
-      date: "2025/07/07"
+    if (username) {
+      fetchSupportData();
     }
-  ];
+  }, [username]);
 
   const handlePlanChange = (type: PlanType, amount: number) => {
     setSelectedPlan({ type, amount });
@@ -93,18 +116,50 @@ const SupportLayout = () => {
     setMessage(newMessage);
   };
 
-  const handleGPTSuggest = () => {
-    // TODO: GPT APIでメッセージ提案
-    const suggestions = [
-      "素晴らしい挑戦ですね！応援しています！",
-      "世界一周、本当に素敵な目標です。頑張ってください！",
-      "異文化体験を通じた成長、とても興味深いです。応援しています！"
-    ];
-    const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
-    setMessage(randomSuggestion);
+  const handleGPTSuggest = async () => {
+    try {
+      const response = await fetch('/api/gpt/suggest-message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: `${userData?.username}さんの挑戦を応援するメッセージを考えてください。`
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setMessage(data.message);
+      } else {
+        // GPT APIが利用できない場合はデフォルトメッセージを使用
+        const suggestions = [
+          "素晴らしい挑戦ですね！応援しています！",
+          "頑張ってください！応援しています！",
+          "あなたの挑戦に感動しています。応援しています！"
+        ];
+        const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
+        setMessage(randomSuggestion);
+      }
+    } catch (error) {
+      console.error('GPT提案エラー:', error);
+      // エラーの場合もデフォルトメッセージを使用
+      const suggestions = [
+        "素晴らしい挑戦ですね！応援しています！",
+        "頑張ってください！応援しています！",
+        "あなたの挑戦に感動しています。応援しています！"
+      ];
+      const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
+      setMessage(randomSuggestion);
+    }
   };
 
   const handlePayment = async () => {
+    if (!userData) {
+      alert('ユーザー情報が取得できませんでした');
+      return;
+    }
+
     setIsProcessing(true);
     try {
       const res = await fetch("/api/stripe/create-checkout-session", {
@@ -117,7 +172,7 @@ const SupportLayout = () => {
           amount: selectedPlan.amount,
           planType: selectedPlan.type,
           message: message,
-          targetUser: userData.username
+          targetUser: userData.id
         })
       });
       const data = await res.json();
@@ -133,11 +188,40 @@ const SupportLayout = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div style={{ background: '#fafcff', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 18, color: '#666', marginBottom: 16 }}>読み込み中...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !userData || !statsData) {
+    return (
+      <div style={{ background: '#fafcff', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 18, color: '#ff6b6b', marginBottom: 16 }}>
+            {error || 'データの取得に失敗しました'}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ background: '#fafcff', minHeight: '100vh' }}>
       <main style={{ maxWidth: 800, margin: '0 auto', padding: '24px' }}>
-        <SupportPageHeader username={userData.username} />
-        <UserMiniProfile {...userData} />
+        <SupportPageHeader username={userData.username} challengeId={challengeId} />
+        <UserMiniProfile 
+          username={userData.username}
+          profileImage={userData.avatar_url}
+          bio={userData.bio}
+          supporterCount={statsData.supporterCount}
+          applauseCount={statsData.totalApplauseCount}
+          activeChallenges={statsData.activeChallenges}
+        />
         <SupporterList supporters={supporters} />
         <SupportPlanSelector onPlanChange={handlePlanChange} />
         <MessageInput onMessageChange={handleMessageChange} onGPTSuggest={handleGPTSuggest} />

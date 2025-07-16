@@ -5,10 +5,10 @@ import React from "react";
 type UserMiniProfileProps = {
   username: string;
   profileImage?: string;
-  bio: string;
+  bio?: string;
   supporterCount: number;
   applauseCount: number;
-  activeChallenges: string[];
+  activeChallenges: number;
 };
 
 const UserMiniProfile = ({ 
@@ -48,18 +48,24 @@ const UserMiniProfile = ({
           {username}
         </h2>
         
-        <div style={{ 
-          fontSize: 14, 
-          lineHeight: 1.5, 
-          marginBottom: 12,
-          color: '#333',
-          display: '-webkit-box',
-          WebkitLineClamp: 3,
-          WebkitBoxOrient: 'vertical',
-          overflow: 'hidden'
-        }}>
-          {bio}
-        </div>
+        {bio && (
+          <div style={{ 
+            fontSize: 14, 
+            lineHeight: 1.5, 
+            marginBottom: 12,
+            color: '#333',
+            display: '-webkit-box',
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            background: 'rgba(37,99,235,0.03)',
+            borderRadius: 8,
+            padding: '10px',
+            border: '1px solid rgba(37,99,235,0.1)'
+          }}>
+            {bio}
+          </div>
+        )}
         
         <div style={{ display: 'flex', gap: 16, fontSize: 14, color: '#666', marginBottom: 8 }}>
           <span>📈 現在の支援者数：{supporterCount}人</span>
@@ -67,7 +73,7 @@ const UserMiniProfile = ({
         </div>
         
         <div style={{ fontSize: 14, color: '#666' }}>
-          🔥 継続中のチャレンジ：「{activeChallenges.join('」「')}」
+          🔥 継続中のチャレンジ：{activeChallenges}件
         </div>
       </div>
     </div>

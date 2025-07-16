@@ -472,7 +472,7 @@ const ChallengeDetailLayout = ({
           )}
           {/* サポートボタン（目立たない形） */}
           <a
-            href={`/support/${challenge.author.replace(/^@/, '')}`}
+            href={`/support/${challenge.author.replace(/^@/, '')}${challengeId ? `?challengeId=${challengeId}` : ''}`}
             style={{
               display: 'inline-flex',
               alignItems: 'center',

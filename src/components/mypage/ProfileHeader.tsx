@@ -15,6 +15,7 @@ type ProfileHeaderProps = {
   userId: string;
   onAvatarChange?: (url: string) => void;
   onUsernameChange?: (username: string) => Promise<void>;
+  onBioChange?: (bio: string) => Promise<void>;
 };
 
 const ProfileHeader = ({ 
@@ -27,17 +28,26 @@ const ProfileHeader = ({
   instagram,
   userId,
   onAvatarChange,
-  onUsernameChange
+  onUsernameChange,
+  onBioChange
 }: ProfileHeaderProps) => {
   const [uploading, setUploading] = React.useState(false);
   const [editing, setEditing] = React.useState(false);
+  const [editingBio, setEditingBio] = React.useState(false);
   const [usernameInput, setUsernameInput] = React.useState(username.replace(/^@/, ''));
+  const [bioInput, setBioInput] = React.useState(bio);
   const [saving, setSaving] = React.useState(false);
+  const [savingBio, setSavingBio] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [bioError, setBioError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     setUsernameInput(username.replace(/^@/, ''));
   }, [username]);
+
+  React.useEffect(() => {
+    setBioInput(bio);
+  }, [bio]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -72,6 +82,27 @@ const ProfileHeader = ({
       setError('保存に失敗しました');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleBioSave = async () => {
+    if (!bioInput.trim()) {
+      setBioError('自己紹介を入力してください');
+      return;
+    }
+    if (bioInput.length > 500) {
+      setBioError('自己紹介は500文字以内で入力してください');
+      return;
+    }
+    setSavingBio(true);
+    setBioError(null);
+    try {
+      if (onBioChange) await onBioChange(bioInput.trim());
+      setEditingBio(false);
+    } catch (e) {
+      setBioError('保存に失敗しました');
+    } finally {
+      setSavingBio(false);
     }
   };
 
@@ -196,9 +227,107 @@ const ProfileHeader = ({
               📍 {location}
             </div>
           )}
-          <div style={{ fontSize: 17, lineHeight: 1.7, marginBottom: 18, color: '#222', fontWeight: 500 }}>
-            {bio}
+          
+          {/* 自己紹介欄 */}
+          <div style={{ marginBottom: 18 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <span style={{ fontSize: 16, fontWeight: 700, color: '#2563eb' }}>📝 自己紹介</span>
+              {!editingBio && (
+                <button
+                  onClick={() => setEditingBio(true)}
+                  style={{
+                    background: 'rgba(37,99,235,0.08)',
+                    color: '#2563eb',
+                    border: 'none',
+                    borderRadius: 6,
+                    fontWeight: 600,
+                    fontSize: 13,
+                    padding: '4px 10px',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s',
+                  }}
+                >編集</button>
+              )}
+            </div>
+            
+            {editingBio ? (
+              <div>
+                <textarea
+                  value={bioInput}
+                  onChange={e => setBioInput(e.target.value)}
+                  style={{
+                    width: '100%',
+                    minHeight: 80,
+                    fontSize: 16,
+                    lineHeight: 1.6,
+                    border: '1.5px solid #60a5fa',
+                    borderRadius: 8,
+                    padding: '12px',
+                    outline: 'none',
+                    background: '#f8fafc',
+                    color: '#222',
+                    fontFamily: 'inherit',
+                    resize: 'vertical',
+                    boxShadow: '0 2px 8px #60a5fa22',
+                    transition: 'border 0.2s',
+                  }}
+                  placeholder="自己紹介を入力してください（500文字以内）"
+                  maxLength={500}
+                  disabled={savingBio}
+                />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                  <button
+                    onClick={handleBioSave}
+                    disabled={savingBio}
+                    style={{
+                      background: 'linear-gradient(90deg,#2563eb,#60a5fa)',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: 6,
+                      fontWeight: 700,
+                      fontSize: 14,
+                      padding: '6px 16px',
+                      cursor: savingBio ? 'not-allowed' : 'pointer',
+                      boxShadow: '0 2px 8px #2563eb22',
+                      transition: 'background 0.2s',
+                    }}
+                  >{savingBio ? '保存中...' : '保存'}</button>
+                  <button
+                    onClick={() => { setEditingBio(false); setBioInput(bio); setBioError(null); }}
+                    disabled={savingBio}
+                    style={{
+                      background: '#eee',
+                      color: '#2563eb',
+                      border: 'none',
+                      borderRadius: 6,
+                      fontWeight: 700,
+                      fontSize: 14,
+                      padding: '6px 14px',
+                      cursor: savingBio ? 'not-allowed' : 'pointer',
+                    }}
+                  >キャンセル</button>
+                  <span style={{ fontSize: 12, color: '#666', marginLeft: 8 }}>
+                    {bioInput.length}/500文字
+                  </span>
+                </div>
+                {bioError && <div style={{ color: '#ff4d4f', fontWeight: 600, marginTop: 4, fontSize: 14 }}>{bioError}</div>}
+              </div>
+            ) : (
+              <div style={{ 
+                fontSize: 16, 
+                lineHeight: 1.7, 
+                color: '#222', 
+                fontWeight: 500,
+                background: 'rgba(37,99,235,0.03)',
+                borderRadius: 8,
+                padding: '12px',
+                border: '1px solid rgba(37,99,235,0.1)'
+              }}>
+                {bio || '自己紹介が設定されていません'}
+              </div>
+            )}
           </div>
+          
           {/* SNSリンク */}
           <div style={{ display: 'flex', gap: 16, marginTop: 8 }}>
             {website && (

@@ -187,9 +187,7 @@ const CommentSection = ({ comments: initialComments, challengeId, onCommentAdded
                   />
                   匿名で投稿
                 </label>
-                <span className="comment-section-length">
-                  {newComment.length}/500文字
-                </span>
+           
               </div>
               <button 
                 onClick={handleSubmit}

@@ -10,7 +10,7 @@ type Progress = {
   images?: string[];
   applauseCount: number;
   commentCount: number;
-  progressType?: string; // 追加
+  progressType?: string;
 };
 
 type ProgressTimelineProps = {
@@ -28,7 +28,7 @@ const ProgressTimeline = ({ progresses, challengeId }: ProgressTimelineProps) =>
 
   return (
     <section className="progress-timeline-card">
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
         <button
           onClick={() => router.push(`/challenge/${challengeId}/progress/new`)}
           style={{
@@ -49,7 +49,16 @@ const ProgressTimeline = ({ progresses, challengeId }: ProgressTimelineProps) =>
       </div>
       <div className="progress-timeline-list">
         {progressList.length === 0 ? (
-          <div className="progress-timeline-empty">まだ進捗がありません</div>
+          <div className="progress-timeline-empty" style={{ 
+            textAlign: 'center', 
+            padding: '40px 20px', 
+            color: '#666',
+            background: '#fafafa',
+            borderRadius: 12,
+            fontSize: 16
+          }}>
+            まだ進捗がありません
+          </div>
         ) : (
           progressList.map((progress) => (
             <ProgressCard
@@ -61,7 +70,7 @@ const ProgressTimeline = ({ progresses, challengeId }: ProgressTimelineProps) =>
               images={progress.images}
               applauseCount={progress.applauseCount}
               commentCount={progress.commentCount}
-              progressType={progress.progressType} // 追加
+              progressType={progress.progressType}
               onDelete={handleDelete}
             />
           ))

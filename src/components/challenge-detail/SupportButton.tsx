@@ -3,11 +3,18 @@ import Link from "next/link";
 
 interface SupportButtonProps {
   author: string; // 例: "@ai_traveler"
+  challengeId?: string;
 }
 
-const SupportButton = ({ author }: SupportButtonProps) => {
+const SupportButton = ({ author, challengeId }: SupportButtonProps) => {
   // @を除去
   const username = author.startsWith("@") ? author.slice(1) : author;
+  
+  // サポートページのURLを作成
+  const supportUrl = challengeId 
+    ? `/support/${username}?challengeId=${challengeId}`
+    : `/support/${username}`;
+    
   return (
     <section style={{ marginBottom: 32 }}>
       <div style={{ 
@@ -19,7 +26,7 @@ const SupportButton = ({ author }: SupportButtonProps) => {
         color: '#fff'
       }}>
         <Link 
-          href={`/support/${username}`}
+          href={supportUrl}
           style={{ 
             fontSize: 18,
             padding: '16px 32px',
