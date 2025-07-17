@@ -54,7 +54,7 @@ const ChallengeNewLayout = () => {
   const isValid = formData.categories.length > 0 && 
                  formData.title.length > 0 && 
                  formData.description.length > 0 && 
-                 formData.goalDate.length > 0;
+                 (formData.goalDate.length > 0 || formData.goalDate === 'undecided');
 
   const handleSubmit = async () => {
     if (!user || !isValid) return;

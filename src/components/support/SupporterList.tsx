@@ -27,7 +27,7 @@ const SupporterList = ({ supporters }: SupporterListProps) => {
         marginBottom: 24,
         border: '1px solid #eee'
       }}>
-        <h3 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>
+        <h3 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16, color: '#222' }}>
           💖 サポーター一覧
         </h3>
         <div style={{ 

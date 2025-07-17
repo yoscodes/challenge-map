@@ -40,7 +40,8 @@ const MessageInput = ({ onMessageChange, onGPTSuggest }: MessageInputProps) => {
       borderRadius: 12, 
       padding: 24, 
       marginBottom: 24,
-      border: '1px solid #eee'
+      border: '1px solid #eee',
+      color: '#222'
     }}>
       <h3 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>
         ✏️ メッセージ（任意）

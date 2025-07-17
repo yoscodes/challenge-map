@@ -165,7 +165,7 @@ export default function ChallengeDetailPage() {
     author: challenge.users?.username || 'Unknown',
     category: categoryMap[challenge.category] || challenge.category,
     startDate: new Date(challenge.created_at).toLocaleDateString('ja-JP'),
-    targetDate: challenge.goal_date ? new Date(challenge.goal_date).toLocaleDateString('ja-JP') : '未設定',
+    targetDate: challenge.goal_date === 'undecided' ? '未定' : (challenge.goal_date ? new Date(challenge.goal_date).toLocaleDateString('ja-JP') : '未設定'),
     location: challenge.location?.address || '未設定',
     description: challenge.description,
     coverImageUrl,

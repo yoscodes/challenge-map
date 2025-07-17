@@ -36,7 +36,8 @@ const SupportPlanSelector = ({ onPlanChange }: SupportPlanSelectorProps) => {
       borderRadius: 12, 
       padding: 24, 
       marginBottom: 24,
-      border: '1px solid #eee'
+      border: '1px solid #eee',
+      color: '#222'
     }}>
       <h3 style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 20 }}>
         💖 支援プランを選ぶ

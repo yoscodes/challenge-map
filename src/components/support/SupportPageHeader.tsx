@@ -27,7 +27,8 @@ const SupportPageHeader = ({ username, challengeId }: SupportPageHeaderProps) =>
       alignItems: 'center', 
       marginBottom: 32,
       borderBottom: '1px solid #eee',
-      paddingBottom: 16
+      paddingBottom: 16,
+      color: '#222'
     }}>
       <button 
         onClick={handleBack}
