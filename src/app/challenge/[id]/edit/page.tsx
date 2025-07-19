@@ -120,20 +120,18 @@ export default function ChallengeEditPage() {
         )}
         <form onSubmit={e => { e.preventDefault(); handleSubmit(); }}>
           <ImageUploader
+            initialImageUrl={coverImageUrl}
             onImageChange={file => {
               setCoverImageFile(file);
               if (file) {
                 const reader = new FileReader();
                 reader.onload = (e) => setCoverImageUrl(e.target?.result as string);
                 reader.readAsDataURL(file);
+              } else {
+                setCoverImageUrl(null);
               }
             }}
           />
-          {coverImageUrl && (
-            <div style={{ marginBottom: 16 }}>
-              <img src={coverImageUrl} alt="カバー画像プレビュー" style={{ maxWidth: '100%', maxHeight: 200, borderRadius: 8, border: '1px solid #ddd' }} />
-            </div>
-          )}
           <CategorySelect
             selectedCategories={formData.categories}
             onCategoryChange={categories => setFormData(prev => ({ ...prev, categories }))}

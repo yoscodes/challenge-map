@@ -161,7 +161,8 @@ const ChallengeNewLayout = () => {
         { value: 'health', label: '健康・フィットネス' },
         { value: 'career', label: 'キャリア・仕事' },
         { value: 'social', label: '社会貢献' },
-        { value: 'creative', label: 'クリエイティブ' },
+        { value: 'creation', label: 'クリエイティブ' },
+        { value: 'money', label: 'お金・投資' },
         { value: 'other', label: 'その他' }
       ]
     },

@@ -52,12 +52,26 @@ const MapExplore = () => {
   const router = useRouter();
 
   // カテゴリ一覧仮
-  const categories = ['旅', '学習', '健康', 'その他'];
+  const categories = ['旅', '学習', '健康', 'キャリア', '創作', '社会貢献', 'お金', 'その他'];
+  
+  // カテゴリID→日本語名変換辞書
+  const categoryMap: Record<string, string> = {
+    travel: '旅',
+    learning: '学習',
+    health: '健康',
+    career: 'キャリア',
+    creation: '創作',
+    creative: '創作',
+    social: '社会貢献',
+    money: 'お金',
+    finance: 'お金',
+    other: 'その他',
+  };
 
   // フィルタリング
   const filteredChallenges = challenges.filter(c => {
     const areaMatch = area === '' || (c.location?.address && c.location.address.includes(area));
-    const categoryMatch = category === '' || (c.category && c.category === category);
+    const categoryMatch = category === '' || (c.category && categoryMap[c.category] === category);
     const keywordMatch = keyword === '' || (c.title && c.title.includes(keyword));
     return areaMatch && categoryMatch && keywordMatch;
   });
@@ -222,7 +236,7 @@ const MapExplore = () => {
           />
         ) : (
           <>
-            <div style={{ display: 'flex', gap: 16, marginBottom: 16 }}>
+            <div style={{ display: 'flex', gap: 16, marginBottom: 16, color: '#495057', fontSize: '14px', fontWeight: 500 }}>
               <input
                 type="text"
                 value={area}

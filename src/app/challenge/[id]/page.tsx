@@ -116,8 +116,10 @@ export default function ChallengeDetailPage() {
     learning: '学習',
     health: '健康',
     career: 'キャリア',
+    creation: '創作',
     creative: '創作',
     social: '社会貢献',
+    money: 'お金',
     finance: 'お金',
     other: 'その他',
   };

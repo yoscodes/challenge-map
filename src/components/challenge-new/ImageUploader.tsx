@@ -4,10 +4,16 @@ import React, { useState } from "react";
 
 type ImageUploaderProps = {
   onImageChange: (file: File | null) => void;
+  initialImageUrl?: string | null;
 };
 
-const ImageUploader = ({ onImageChange }: ImageUploaderProps) => {
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+const ImageUploader = ({ onImageChange, initialImageUrl }: ImageUploaderProps) => {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(initialImageUrl || null);
+
+  // initialImageUrlが変更されたときにpreviewUrlを更新
+  React.useEffect(() => {
+    setPreviewUrl(initialImageUrl || null);
+  }, [initialImageUrl]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -49,12 +55,10 @@ const ImageUploader = ({ onImageChange }: ImageUploaderProps) => {
           <img
             src={previewUrl}
             alt="プレビュー"
+            style={{ maxWidth: '100%', maxHeight: 200, borderRadius: 8, border: '1px solid #ddd' }}
           />
         </div>
       )}
-      <div className="image-hint">
-        ※ Supabase Storageに保存されます
-      </div>
     </section>
   );
 };

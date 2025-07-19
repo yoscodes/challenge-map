@@ -24,6 +24,19 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   selectedCategory,
   selectedLocation
 }) => {
+  // カテゴリID→日本語名変換辞書
+  const categoryMap: Record<string, string> = {
+    travel: '旅',
+    learning: '学習',
+    health: '健康',
+    career: 'キャリア',
+    creation: '創作',
+    creative: '創作',
+    social: '社会貢献',
+    money: 'お金',
+    finance: 'お金',
+    other: 'その他',
+  };
   if (isLoading) {
     return (
       <div style={{
@@ -180,7 +193,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                     }}>{challenge.description.length > 100 ? `${challenge.description.substring(0, 100)}...` : challenge.description}</p>
                     <div style={{ display: 'flex', gap: '16px', fontSize: '13px', color: '#2563eb', fontWeight: 600 }}>
                       <span>👤 {challenge.users?.username}</span>
-                      <span>📂 {challenge.category}</span>
+                      <span>📂 {categoryMap[challenge.category] || challenge.category}</span>
                       {challenge.location && (
                         <span>📍 {typeof challenge.location === 'string' ? challenge.location : challenge.location.address}</span>
                       )}

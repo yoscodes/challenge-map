@@ -7,9 +7,9 @@ const categories = [
   { id: "learning", name: "学習", icon: "📚" },
   { id: "health", name: "健康", icon: "💪" },
   { id: "career", name: "キャリア", icon: "💼" },
-  { id: "creative", name: "創作", icon: "🎨" },
+  { id: "creation", name: "創作", icon: "🎨" },
   { id: "social", name: "社会貢献", icon: "🤝" },
-  { id: "finance", name: "お金", icon: "💰" },
+  { id: "money", name: "お金", icon: "💰" },
   { id: "other", name: "その他", icon: "🌟" }
 ];
 
